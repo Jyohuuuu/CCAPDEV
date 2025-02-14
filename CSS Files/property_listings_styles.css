@@ -92,7 +92,18 @@ header {
     margin-top: 20px;
     display: flex;
     justify-content: center;
+    align-items: center;
+    gap: 15px;
 }
+
+.filter-options input,
+.filter-options select {
+    padding: 5px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    min-width: 100px;
+}
+
 
 .property-grid {
     display: grid;
