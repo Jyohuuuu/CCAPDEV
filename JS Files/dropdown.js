@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="dropdown-menu" id="dropdownMenu">
             <ul>
                 <li><a href="settings.html">Settings</a></li>
-                <li><a href="logout.html">Logout</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
             </ul>
         </div>
     `;
