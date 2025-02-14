@@ -49,20 +49,14 @@ header {
     transform: translateY(-50%);
 }
 
-.profile {
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 30px;
-    height: 30px;
+.profile-icon {
+    width: 25px;
+    height: 25px;
     border-radius: 50%;
-    background-color: black;
-    text-align: center;
-    line-height: 30px;
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
+    object-fit: cover;
+    position: absolute;
+    right: 10px;
+    bottom: 11px;
 }
 
 .notification {
