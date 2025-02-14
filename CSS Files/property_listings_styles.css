@@ -3,8 +3,8 @@
 body {
     font-family: 'Poppins', sans-serif;
     background-color: white;
-    margin: 0;
-    padding: 20px;
+    margin: -10px;
+    padding: 0px;
 }
 
 .container {
@@ -14,26 +14,78 @@ body {
     overflow: hidden;
 }
 
-.header-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start; 
-    padding: 10px 20px;
-    background-color: #f8f9fa;
+header {
+    position: relative;
+    background-color: white;
+    padding: 35px;
     border-bottom: 2px solid #ddd;
-    width: 100%;
 }
 
 .logo {
-    height: 60px;
-    width: auto;
-    margin-right: 15px; 
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 10px; 
+    left: 20px;
 }
 
-.header-title {
-    font-size: 24px;
+.logo img {
+    position: relative;
+    height: 50px;
+    width: 50px;
+}
+
+.logo-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: black;
+    margin-left: 10px;
+}
+
+.profile-menu {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    width: 70px;
+    height: 35px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 5px;
+}
+
+.menu-icon {
+    font-size: 18px;
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.profile-icon {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    object-fit: cover;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+.notification {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    font-size: 12px;
     font-weight: bold;
-    margin: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 18px;
 }
 
 .property-grid {
