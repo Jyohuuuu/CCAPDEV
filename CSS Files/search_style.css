@@ -6,21 +6,36 @@ body {
     padding: 0;
 }
 
+
+
 /* Header */
 header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
+    position: relative;
     background-color: white;
-    border-bottom: 1px solid #ddd;
+    padding: 40px;
+    border-bottom: 2px solid #ddd;
 }
 
 .logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #ff385c;
-    cursor: pointer;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 10px; 
+    left: 20px;
+}
+
+.logo img {
+    position: relative;
+    height: 50px;
+    width: 50px;
+}
+
+.logo-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: black;
+    margin-left: 10px;
 }
 
 nav a {
@@ -42,11 +57,23 @@ nav a {
     gap: 5px;
 }
 
+.whole-search {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    padding: 10px;
+    max-width: 1200px; /* Ensures it does not overflow */
+    width: 100%;
+    gap: 10px;
+    margin: 20px auto; /* Centers it horizontally */
+}
+
 /* Search Bar */
 .search-container {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    width: 100%;
 }
 
 .search-box {
@@ -54,14 +81,15 @@ nav a {
     align-items: center;
     background: white;
     padding: 10px;
-    border-radius: 30px;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-    width: 1200px;
+    max-width: 1200px;
+    width: 100%;
+    gap: 10px;
 }
 
 .search-field {
-    flex: 1;
-    padding: 0 15px;
+    flex: 1; /* Allows it to take up space evenly */
+    padding: 0 10px;
 }
 
 .search-field label {
@@ -79,110 +107,87 @@ nav a {
 }
 
 .search-btn {
-    background-color: #6738ff;
+    background-color: #007bff; /* Blue background */
     border: none;
-    padding: 10px 15px;
+    padding: 10px;
     border-radius: 50%;
-    color: white;
     cursor: pointer;
-}
-
-/* Filter Bar */
-.filter-bar {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
-    overflow-x: auto;
-    white-space: nowrap;
-    gap: 20px;
+    width: 40px;
+    height: 40px;
 }
 
-.filter-item {
+.search-btn img {
+    width: 16px;  /* Keeps image small */
+    height: 16px;
+    filter: invert(1) brightness(1000%);
+}
+
+/* Fixing the Date Picker Layout */
+.date-picker {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    align-items: center; 
+    gap: 10px; /* Small spacing between check-in and check-out */
+    flex: 1; /* Allows it to grow evenly with the search field */
+}
+
+.date-picker label {
     font-size: 12px;
-    cursor: pointer;
+    font-weight: bold;
     color: #666;
 }
 
-.filter-item i {
-    font-size: 20px;
-    margin-bottom: 5px;
-}
-
-.filter-item.active {
-    color: black;
-    font-weight: bold;
-    border-bottom: 2px solid black;
-}
-
-/* Toggle Switch */
-.toggle-switch {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-left: auto;
-}
-
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 34px;
-    height: 20px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    border-radius: 20px;
-    transition: .4s;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 14px;
-    width: 14px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    border-radius: 50%;
-    transition: .4s;
-}
-
-input:checked + .slider {
-    background-color: #ff385c;
-}
-
-input:checked + .slider:before {
-    transform: translateX(14px);
-}
-
-.date-picker {
-    display: flex;
-    gap: 10px;
-    padding: 0;
-    background: transparent;
-    box-shadow: none;
-    border-radius: 0;
+.date-picker input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 150px; /* Adjust width to keep it compact */
 }
 
 input {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
+}
+
+/* Advanced Options Button */
+.advanced-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-size: 14px;
+    cursor: pointer;
+    padding-left: 10px;
+}
+
+.advanced-btn:hover {
+    text-decoration: underline;
+}
+
+/* Advanced Options Panel */
+.filters-container {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    justify-content: center;
+    width: 100%;
+}
+
+
+.advanced-options {
+    display: none;
+    background: white;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    width: 300px;
+}
+
+.advanced-options label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
 }

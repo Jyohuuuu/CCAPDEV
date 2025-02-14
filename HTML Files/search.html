@@ -11,36 +11,61 @@
 
     <!-- Header -->
     <header>
-        <div class="user-controls">
-            <a href="#">Host Your Home</a>
-            <i class="fas fa-globe"></i>
-            <div class="profile-icon">
-                <i class="fas fa-bars"></i>
-                <i class="fas fa-user-circle"></i>
-            </div>
+        <div class="logo">
+            <img src="../Images/TempLogo.png">
+            <span class="logo-text">HOMIGO</span>
         </div>
     </header>
 
+    <div class="whole-search">
+
     <div class="search-container">
         <div class="search-box">
+            
+            <!-- Search Destination Input -->
             <div class="search-field">
-                <label>Where</label>
-                <input type="text" placeholder="Search destinations">
+                <label for="destination">Where</label>
+                <input type="text" id="destination" placeholder="Search destinations">
             </div>
+
+            <!-- Date Picker -->
             <div class="date-picker">
-                    <label for="start-date">Check in:</label>
+                <div>
+                    <label for="start-date">Check-in:</label>
                     <input type="date" id="start-date">
-                    
-                    <label for="end-date">Check out:</label>
+                </div>
+                
+                <div>
+                    <label for="end-date">Check-out:</label>
                     <input type="date" id="end-date">
+                </div>
             </div>
-            <div class="search-field">
-                <label>Who</label>
-                <input type="text" placeholder="Add guests">
-            </div>
-            <button class="search-btn"><i class="fas fa-search"></i></button>
+
+            <button class="advanced-btn" id="toggle-options">
+                Advanced Options ▼
+            </button>
+
+            <!-- Search Button -->
+            <button class="search-btn">
+                <img src="../Images/magnify.png" alt="Search">
+            </button>
+
+        </div>
+
+    </div>
+    
+    <div class="filters-container" id="filters-container">
+           <div class="advanced-options" id="advanced-options">
+             <label><input type="checkbox"> Free Breakfast</label>
+             <label><input type="checkbox"> Free Parking</label>
+            <label><input type="checkbox"> Pet Friendly</label>
+            <label><input type="checkbox"> Pool</label>
+            <label><input type="checkbox"> Gym</label>
         </div>
     </div>
+</div>
+
+    <script src="../JS Files/search.js"></script>
 
 </body>
 </html>
