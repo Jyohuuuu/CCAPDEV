@@ -3,8 +3,8 @@
 body {
     font-family: 'Poppins', sans-serif;
     background-color: white;
-    margin: -10px;
-    padding: 0px;
+    margin: 0px;
+    padding: 8px;
 }
 
 .container {
@@ -86,6 +86,12 @@ header {
     border-radius: 50%;
     text-align: center;
     line-height: 18px;
+}
+
+.filter-options {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
 }
 
 .property-grid {
