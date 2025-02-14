@@ -105,13 +105,35 @@ header {
     margin-top: 10px;
 }
 
+.divider {
+    border: none;
+    border-top: 2px solid #e5e7eb;
+
+}
+
+.divider2 {
+    border: none;
+    border-top: 2px solid #e5e7eb;
+    margin-top: 220px;
+}
+
+.message-button{
+    background-color: black;
+    color: white;
+    padding: 10px 90px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;   
+    margin-top: 20px;
+}
+
 .rating {
     font-size: 15px;
     font-weight: bold;
     display: block;
 }
 
-.reviews {
+.review_number {
     color: gray;
     font-size: 15px;
     font-weight: bold;
