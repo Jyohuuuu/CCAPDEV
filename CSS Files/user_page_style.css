@@ -265,7 +265,7 @@ header {
 
 .review-card {
     display: flex;
-    width: 1000px;
+    max-width: 1000px;
     height: 80px;
     align-items: center;
     background: #fff;
@@ -300,6 +300,13 @@ header {
 .review-stars{
     margin-top: -5000px;
 }
+
+.review-date {
+    font-size: 13px;
+    font-weight: 120;
+    color: grey;
+}
+
 .comment{
     font-size: 13px;
     font-weight: 120;
