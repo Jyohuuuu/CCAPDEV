@@ -27,38 +27,63 @@
     </div>
 
     <div class="container">
+        <div class="whole-search">
 
-        <div class="filter-options">
-            <label for="availability">Availability:</label>
-            <select id="availability">
-                <option value="all">All</option>
-                <option value="available">Available</option>
-                <option value="booked">Booked</option>
-            </select>
-
-            <label for="min-price">Min Price:</label>
-            <input type="number" id="min-price" placeholder="Min" min="0">
-            <label for="max-price">Max Price:</label>
-            <input type="number" id="max-price" placeholder="Max" min="0">
-
-            <label for="lister-filter">Filter by Lister:</label>
-            <input type="text" id="lister-filter" placeholder="Enter lister name">
+            <div class="search-container">
+                <div class="search-box">
+                    
+                    <!-- Search Destination Input -->
+                    <div class="search-field">
+                        <label for="destination">Where</label>
+                        <input type="text" id="destination" placeholder="Search destinations">
+                    </div>
+        
+                    <!-- Date Picker -->
+                    <div class="date-picker">
+                        <div>
+                            <label for="start-date">Check-in:</label>
+                            <input type="date" id="start-date">
+                        </div>
+                        
+                        
+                        <div>
+                            <label for="end-date">Check-out:</label>
+                            <input type="date" id="end-date">
+                        </div>
+                    </div>
+        
+                    <button class="advanced-btn" id="toggle-options">
+                        Advanced Options ▼
+                    </button>
+        
+                    <!-- Search Button -->
+                    <button class="search-btn">
+                        <img src="../Images/magnify.png" alt="Search">
+                    </button>
+        
+                </div>
+        
+            </div>
+            
+            <div class="filters-container" id="filters-container">
+                   <div class="advanced-options" id="advanced-options">
+        
+                    <div class="price-range">
+                        <label>Price Range:</label>
+                        <input type="number" placeholder="Min" class="price-input">
+                        <span> - </span>
+                        <input type="number" placeholder="Max" class="price-input">
+                    </div>
+                     <label><input type="checkbox"> Free Breakfast</label>
+                     <label><input type="checkbox"> Free Parking</label>
+                    <label><input type="checkbox"> Pet Friendly</label>
+                    <label><input type="checkbox"> Pool</label>
+                    <label><input type="checkbox"> Gym</label>
+                </div>
+            </div>
         </div>
-
-        <button id="add-property-button">Add Property</button>
-
-        <form id="property-form" style="display: none;">
-            <h3>Add a Property</h3>
-            <input type="text" id="property-name" placeholder="Property Name" required>
-            <input type="text" id="property-description" placeholder="Short Description" required>
-            <input type="number" id="property-price" placeholder="Price per night" min="0" required>
-            <input type="text" id="property-lister" placeholder="Lister Name" required>
-            <select id="property-availability">
-                <option value="available">Available</option>
-                <option value="booked">Booked</option>
-            </select>
-            <button type="submit">Submit</button>
-        </form>
+    </div>
+            <script src="../JS Files/search.js"></script>
 
         <div id="property-list" class="property-grid">
             <div class="property-card" data-availability="available" data-price="100" data-lister="Alice">
@@ -114,7 +139,7 @@
             </div>
 
             <div class="property-card" data-availability="booked" data-price="65" data-lister="Henry">
-                <img src="../Images/sampleHouse1.png" alt="Property Image">
+                <img src="../images/sampleHouse1.png" alt="Property Image">
                 <div class="property-info">
                     <span class="property-name">Cozy Modern House</span>
                     <span class="property-reviews">★ 5.0</span>
@@ -128,6 +153,6 @@
         </div>
     </div>
 
-    <script src="property_listings.js"></script>
+    <script src="../JS Files/search.js"></script>
 </body>
 </html>
