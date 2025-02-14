@@ -83,7 +83,7 @@ header {
     display:block;
     width: 270px; 
     min-height: 500px; 
-    border: 1px solid #ddd;
+    border: 2px solid #ddd;
     border-radius: 10px;
     padding: 20px;
     text-align: center;
@@ -148,28 +148,75 @@ header {
 
 .properties {
     margin-left: 580px;
-    margin-top: 100px;
+    margin-top: 50px;
 }
 
 .properties h2 {
     font-family: 'Poppins', sans-serif;
     font-size: 28px;
-    margin-top: 20px;
+    margin-top: -10px;
 }
 
 .property-card {
-    display: block;
-    width: 280px;
-    height: 190px;
-    border: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    width: 340px;
+    height: 295px; 
+    border: 2px solid #ddd;
     border-radius: 10px;
-    padding: 20px;
-    text-align: left; 
-    margin-top: -15px;
+    overflow: hidden;
+    margin-top: -15px; 
 }
 
-.property-card img {
-    text-align: center;
-    margin: 0 auto;
+.property-image {
+    height: 64%; 
+    width: 100%;
+    overflow: hidden; 
 }
 
+.property-info {
+    font-family: 'Poppins', sans-serif;
+    flex: 1;
+    text-align: left;
+    padding: 10px;
+    margin-left: 10px;
+    margin-top: 5px;
+}
+
+.property-name{
+    font-size: 17px;
+    font-weight: bold;
+    margin-top: 1px;
+}
+
+.property-reviews{
+    font-size: 16px;
+    font-weight:lighter;
+    margin-top: 1px;
+    margin-left: 75px;
+}
+
+.material-symbols-outlined {
+    color: grey;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+}
+
+.property-location {
+    font-size: 13px;
+    font-weight: lighter;
+    color: grey;   
+}
+
+.property-price {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.text-per-night {
+    font-size: 13px;
+    font-weight: lighter;
+    color: grey;
+}
