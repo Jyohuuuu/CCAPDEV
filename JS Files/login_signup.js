@@ -18,7 +18,7 @@ function login(event) {
     if (user) {
         console.log("User found:", user);
         alert("Login successful!");
-        window.location.href = "homigo_homepage.html";
+        window.location.href = "user_page.html";
     } else {
         if (errorElement) {
             errorElement.textContent = "Invalid email or password.";
