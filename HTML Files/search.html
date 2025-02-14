@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search & Filter UI</title>
-    <link rel="stylesheet" href="../CSS Files/styles.css">
+    <link rel="stylesheet" href="../CSS Files/search_style.css">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -21,20 +21,18 @@
         </div>
     </header>
 
-    <!-- Search Bar -->
     <div class="search-container">
         <div class="search-box">
             <div class="search-field">
                 <label>Where</label>
                 <input type="text" placeholder="Search destinations">
             </div>
-            <div class="search-field">
-                <label>Check in</label>
-                <input type="text" placeholder="Add dates">
-            </div>
-            <div class="search-field">
-                <label>Check out</label>
-                <input type="text" placeholder="Add dates">
+            <div class="date-picker">
+                    <label for="start-date">Check in:</label>
+                    <input type="date" id="start-date">
+                    
+                    <label for="end-date">Check out:</label>
+                    <input type="date" id="end-date">
             </div>
             <div class="search-field">
                 <label>Who</label>

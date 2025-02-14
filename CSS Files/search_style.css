@@ -56,7 +56,7 @@ nav a {
     padding: 10px;
     border-radius: 30px;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-    width: 600px;
+    width: 1200px;
 }
 
 .search-field {
@@ -79,7 +79,7 @@ nav a {
 }
 
 .search-btn {
-    background-color: #ff385c;
+    background-color: #6738ff;
     border: none;
     padding: 10px 15px;
     border-radius: 50%;
@@ -170,4 +170,19 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(14px);
+}
+
+.date-picker {
+    display: flex;
+    gap: 10px;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
