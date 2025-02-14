@@ -7,72 +7,95 @@ body {
     align-items: center;
     height: 100vh;
 }
+
 .login-container {
     background-color: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     width: 100%;
-    max-width: 400px;
+    max-width: 450px;
     text-align: center;
 }
+
 h1 {
     color: #333;
-    margin-bottom: 25px;
+    font-size: 26px;
+    margin-bottom: 30px;
 }
+
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     text-align: left;
 }
+
 .form-group label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-weight: bold;
+    font-size: 16px;
 }
+
 .form-group input {
     width: 100%;
-    padding: 10px;
+    padding: 14px;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
+    border-radius: 8px;
+    font-size: 16px;
     box-sizing: border-box;
 }
+
 button, a.button {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     background-color: #0044cc;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
     text-align: center;
     line-height: 1.5;
-    margin: 10px 0;
+    margin: 12px 0;
     text-decoration: none;
     display: block;
     font-family: 'Trebuchet MS', sans-serif;
     box-sizing: border-box;
 }
+
 button:hover, a.button:hover {
     background-color: #003399;
 }
+
 .form-group button, .button {
     width: 100%;
-    padding: 10px;
-    background-color: #0044cc;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    text-align: center;
-    line-height: 1.5;
-    margin: 10px 0;
-    text-decoration: none;
-    display: block;
+    padding: 12px;
+    font-size: 18px;
 }
 
 .form-group button:hover, .button:hover {
     background-color: #003399;
+}
+
+.logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+    width: 100%; 
+    margin-bottom: 15px;
+}
+
+.logo img {
+    width: 120px;
+    height: 130px;
+    object-fit: contain;
+}
+
+.logo-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: black;
+    margin-top: 8px;
 }
