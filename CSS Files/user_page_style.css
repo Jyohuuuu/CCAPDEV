@@ -126,6 +126,11 @@ header {
     border-radius: 5px;
     cursor: pointer;   
     margin-top: 10px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.message-button:hover {
+    transform: scale(1.02);
 }
 
 .rating {
@@ -192,6 +197,11 @@ header {
     overflow: hidden;
     margin-top: -20px; 
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.property-card:hover {
+    transform: scale(1.02);
 }
 
 .property-image {
