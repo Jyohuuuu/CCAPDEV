@@ -82,7 +82,7 @@ header {
 .profile-card {
     display:block;
     width: 250px; 
-    min-height: 400px; 
+    min-height: 500px; 
     border: 1px solid #ddd;
     border-radius: 10px;
     padding: 20px;
@@ -90,17 +90,18 @@ header {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     position: absolute; 
     left: 250px;
-    top: 325px;
+    top: 150px;
 }
 
 .profile-image {
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     object-fit: cover; 
 }
 
 .profile-info {
+    font-family: 'Poppins', sans-serif;
     margin-top: 10px;
 }
 
@@ -110,16 +111,24 @@ header {
     display: block;
 }
 
+.reviews {
+    color: gray;
+    font-size: 18px;
+    font-weight: bold;
+}
+
 .role {
     font-size: 16px;
 }
 
 .profile-details {
-    margin-left: 700px; 
+    font-family: 'Poppins', sans-serif;
+    margin-left: 560px;
+    margin-top: -100px;
 }
 
 .profile-details h1 {
-    font-size: 80px;
+    font-size: 50px;
     font-weight: bold;
     margin-top: 150px; 
 }
@@ -127,12 +136,13 @@ header {
 .location {
     font-size: 14px;
     color: gray;
-    margin-top: -60px; 
+    margin-top: -50px; 
     margin-bottom: 10px;
 }
 
 .bio {
     font-size: 14px;
+    color: gray;
     line-height: 1.5;
     max-width: 600px;
 }
