@@ -1,0 +1,9 @@
+@import "tailwindcss";
+/* This affects all input boxes 
+    py and px is veritcal and horizontal padding
+    bg-zinc-100/40 is a custom color with 40% opacity
+    w-[400px] is a custom width of 400px
+*/
+input {
+  @apply w-[400px] border border-gray-200 py-2 px-6 bg-zinc-100/40;
+}
