@@ -1,18 +1,32 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Head from "next/head";
 
 export default function UserProfilePage() {
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuRef]);
 
   return (
     <>
@@ -31,18 +45,43 @@ export default function UserProfilePage() {
             </Link>
           </div>
 
-          <div className="absolute top-2 right-5 w-16 h-9 bg-white rounded-full shadow-md p-1 flex items-center">
-            <span className="text-lg cursor-pointer" onClick={toggleMenu}>
-              &#9776;
-            </span>
-            <Image 
-              src={session?.user?.image || "/Images/defaultUser.png"} 
-              alt="User" 
-              width={25} 
-              height={25} 
-              className="rounded-full ml-auto"
-            />
+          {/* dropdown menu */}
+          <div className="absolute top-4 right-5 flex items-center">
+            <div className="relative" ref={menuRef}>
+              {menuOpen && (
+                <div className="absolute right-13 mt-6 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                  <Link href="/user-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Profile
+                  </Link>
+                  <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Settings
+                  </Link>
+                  <button onClick={() => signOut()} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Sign out
+                  </button>
+                </div>
+              )}
+            
+              <div className="flex h-9 bg-white shadow-md rounded-full overflow-hidden">
+                {/*menu button*/}
+                <div className="flex items-center justify-center px-3 cursor-pointer" onClick={toggleMenu}>
+                  <span className="text-lg">&#9776;</span>
+                </div>
+                
+                {/* profile image*/}
+                <div className="w-9 flex items-center justify-center">
+                  <Image 
+                    src={session?.user?.image || "/Images/defaultUser.png"} 
+                    alt="User" 
+                    width={25} 
+                    height={25} 
+                    className="rounded-full"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
+
         </header>
       </div>
 
