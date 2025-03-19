@@ -1,3 +1,5 @@
+// DOES NOT LOG OUT PROPERLY FROM HERE
+
 "use client";
 
 import { useState } from "react";
