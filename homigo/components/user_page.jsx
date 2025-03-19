@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -57,7 +58,7 @@ export default function UserProfilePage() {
                     Settings
                   </Link>
                   <button onClick={() => signOut()} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Sign out
+                    Log Out
                   </button>
                 </div>
               )}
