@@ -232,10 +232,20 @@ h1 {
     margin-bottom: 0;
 }
 
+/* Grid for payment section */
+.payment-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Payment form wider than price box */
+    gap: 200px;
+    max-width: 1200px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
+}
+
 /* Payment form */
 .payment-box {
     max-width: 100%; /* Allow full width in grid cell */
-    margin: 0; /* Remove auto margins */
+    margin: 0; 
     padding: 30px;
     background: white;
     border-radius: 12px;
@@ -306,7 +316,8 @@ h1 {
 /* Price box */
 .price-box {
     max-width: 100%; /* Allow full width in grid cell */
-    margin: 0; /* Remove auto margins */
+    margin: 0;
+    max-height: 360px; 
     padding: 30px;
     background: white;
     border-radius: 12px;
@@ -445,15 +456,7 @@ h1 {
     max-width: 300px;
 }
 
-/* Grid for payment section */
-.payment-container {
-    display: grid;
-    grid-template-columns: 2fr 1fr; /* Payment form wider than price box */
-    gap: 200px;
-    max-width: 1200px;
-    margin: 0 auto 40px;
-    padding: 0 20px;
-}
+
 
 /* Responsive improvements */
 @media (max-width: 768px) {
