@@ -1,5 +1,3 @@
-// Import Necessary Modules/Components
-import PlaceholderPage from "@/components/placeholder_info";  
 import UserProfilePage from "@/components/user_page";
 
 //export makes it so that the function/etc can be imported into other files
