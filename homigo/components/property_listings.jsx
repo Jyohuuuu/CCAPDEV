@@ -1,64 +1,15 @@
-// DOES NOT LOG OUT PROPERLY FROM HERE
-
 "use client";
 
-import { useState } from "react";
-import PropertyCard from "@/components/property_card";
+import { useState, useEffect } from "react";
 import Header from "./header";
-import FilterMenu from "@/components/FilterMenu";
-
-const properties = [
-  {
-    id: 1,
-    title: "Cozy Apartment in the City",
-    price: 120,
-    location: "New York, NY",
-    image: "/images/apartment.jpg",
-    description:
-      "Located in the heart of the city, within walking distance to restaurants and shops.",
-    available: "Available",
-    maxGuests: 2,
-    rating: 4.5,
-  },
-  {
-    id: 2,
-    title: "Beachfront Villa",
-    price: 250,
-    location: "Miami, FL",
-    image: "/images/villa.jpg",
-    description:
-      "A luxurious villa right on the beach with stunning ocean views and modern amenities.",
-    available: "Available",
-    maxGuests: 6,
-    rating: 4.8,
-  },
-  {
-    id: 3,
-    title: "Calm Home",
-    price: 180,
-    location: "Washington, D.C.",
-    image: "/images/home.jpg",
-    description:
-      "A peaceful home with a private garden, perfect for relaxation near the city center.",
-    available: "Booked",
-    maxGuests: 4,
-    rating: 3.9,
-  },
-  {
-    id: 4,
-    title: "Studio Apartment",
-    price: 80,
-    location: "New York, NY",
-    image: "/images/studio.jpg",
-    description:
-      "A compact and stylish studio apartment close to public transport and local attractions.",
-    available: "Booked",
-    maxGuests: 2,
-    rating: 4.2,
-  },
-];
+import PropertyCard from "./property_card";
+import FilterMenu from "./filtermenu";
 
 export default function PropertyListings() {
+  const [properties, setProperties] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
     title: "",
     availability: "",
@@ -69,48 +20,135 @@ export default function PropertyListings() {
     maxGuests: "",
   });
 
-  const filteredProperties = properties.filter((property) => {
-    return (
-      (filters.title === "" ||
-        property.title.toLowerCase().includes(filters.title.toLowerCase())) &&
-      (filters.availability === "" ||
-        property.available === filters.availability) &&
-      (filters.minPrice === "" ||
-        property.price >= parseFloat(filters.minPrice)) &&
-      (filters.maxPrice === "" ||
-        property.price <= parseFloat(filters.maxPrice)) &&
-      (filters.rating === "" ||
-        property.rating >= parseFloat(filters.rating)) &&
-      (filters.minGuests === "" ||
-        property.maxGuests >= parseInt(filters.minGuests)) &&
-      (filters.maxGuests === "" ||
-        property.maxGuests <= parseInt(filters.maxGuests))
-    );
-  });
+  useEffect(() => {
+    let ignore = false;
+    const fetchProperties = async () => {
+      console.log("Fetching properties from API...");
+      setLoading(true);
+
+      try {
+        const queryParams = new URLSearchParams({
+          page: 1, // ✅ Always reset to page 1 when filters change
+          limit: 12,
+        });
+
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) queryParams.append(key, value);
+        });
+
+        console.log("Fetching with filters:", queryParams.toString());
+
+        const res = await fetch(`/api/properties?${queryParams.toString()}`);
+        if (!res.ok) throw new Error("Failed to fetch properties");
+
+        const data = await res.json();
+        console.log("API response:", data);
+
+        if (!data || !Array.isArray(data.properties)) {
+          throw new Error("Invalid response from server");
+        }
+
+        if (!ignore) {
+          setProperties(data.properties); // ✅ Reset property list
+          setHasMore(data.properties.length === 12);
+          setPage(1); // ✅ Reset pagination
+        }
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+    return () => {
+      ignore = true;
+    };
+  }, [filters]); // ✅ Runs only when filters change
+
+  // ✅ Handle Pagination Separately
+  useEffect(() => {
+    if (page === 1) return; // ✅ Avoid duplicate fetch on filter change
+
+    let ignore = false;
+    const fetchMoreProperties = async () => {
+      console.log("Fetching more properties...");
+      setLoading(true);
+
+      try {
+        const queryParams = new URLSearchParams({
+          page,
+          limit: 12,
+        });
+
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) queryParams.append(key, value);
+        });
+
+        const res = await fetch(`/api/properties?${queryParams.toString()}`);
+        if (!res.ok) throw new Error("Failed to fetch properties");
+
+        const data = await res.json();
+        console.log("API response (pagination):", data);
+
+        if (!data || !Array.isArray(data.properties)) {
+          throw new Error("Invalid response from server");
+        }
+
+        if (!ignore) {
+          setProperties((prev) => [...prev, ...data.properties]); // ✅ Append new results
+          setHasMore(data.properties.length === 12);
+        }
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMoreProperties();
+    return () => {
+      ignore = true;
+    };
+  }, [page]); // ✅ Runs only when page changes
 
   return (
     <>
       <Header />
       <div className="p-4">
-        {/* Title & Filter Button */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold">Property Listings</h1>
-          <FilterMenu filters={filters} setFilters={setFilters} />{" "}
-          {/* Use FilterMenu */}
+          <FilterMenu
+            filters={filters}
+            setFilters={setFilters}
+            setPage={setPage}
+          />
         </div>
-
-        {/* Property Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {filteredProperties.length > 0 ? (
-            filteredProperties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))
+          {properties.length > 0 ? (
+            properties.map((property) => {
+              console.log("Property ID:", property._id); // Log the ID to check for duplicates
+              return <PropertyCard key={property._id} property={property} />;
+            })
           ) : (
             <p className="col-span-full text-center text-gray-500">
-              No properties match the filters.
+              No properties found.
             </p>
           )}
         </div>
+
+        {/* Load More Button */}
+        {hasMore && (
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={() => setPage((prev) => prev + 1)}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? "Loading..." : "Load More"}
+            </button>
+          </div>
+        )}
       </div>
     </>
   );

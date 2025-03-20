@@ -2,12 +2,20 @@
 
 import { useState } from "react";
 
-export default function FilterMenu({ filters, setFilters }) {
+export default function FilterMenu({ filters, setFilters, setPage }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+  const handleFilterChange = (event) => {
+    console.log("handleFilterChange is running!"); // Extra log
+    const { name, value } = event.target;
+    console.log("Filter changed:", name, value); // ✅ Step 1: Debug log
+    setFilters((prevFilters) => {
+      const updatedFilters = { ...prevFilters, [name]: value || "" }; // Ensure empty fields are handled
+      console.log("✅ After state update, filters:", updatedFilters);
+      return updatedFilters;
+    });
+    setPage(1); // Reset page whenever filters change
+    console.log("Filters updated:", { ...filters, [name]: value });
   };
 
   return (
@@ -26,7 +34,7 @@ export default function FilterMenu({ filters, setFilters }) {
             <input
               type="text"
               name="title"
-              value={filters.title}
+              value={filters.title || ""}
               onChange={handleFilterChange}
               className="w-[50px] max-w-xs px-2 py-1 border rounded text-xs"
             />
@@ -36,7 +44,7 @@ export default function FilterMenu({ filters, setFilters }) {
             <label className="block text-xs font-medium">Availability</label>
             <select
               name="availability"
-              value={filters.availability}
+              value={filters.availability || ""}
               onChange={handleFilterChange}
               className="w-full max-w-xs px-2 py-1 border rounded text-xs"
             >
@@ -52,7 +60,7 @@ export default function FilterMenu({ filters, setFilters }) {
               <input
                 type="number"
                 name="minPrice"
-                value={filters.minPrice}
+                value={filters.minPrice || ""}
                 onChange={handleFilterChange}
                 className="w-full max-w-xs px-2 py-1 border rounded text-xs"
               />
@@ -63,7 +71,7 @@ export default function FilterMenu({ filters, setFilters }) {
               <input
                 type="number"
                 name="maxPrice"
-                value={filters.maxPrice}
+                value={filters.maxPrice || ""}
                 onChange={handleFilterChange}
                 className="w-full max-w-xs px-2 py-1 border rounded text-xs"
               />
@@ -75,7 +83,7 @@ export default function FilterMenu({ filters, setFilters }) {
             <input
               type="number"
               name="rating"
-              value={filters.rating}
+              value={filters.rating || ""}
               onChange={handleFilterChange}
               className="w-full max-w-xs px-2 py-1 border rounded text-xs"
               min="0"
@@ -90,7 +98,7 @@ export default function FilterMenu({ filters, setFilters }) {
               <input
                 type="number"
                 name="minGuests"
-                value={filters.minGuests}
+                value={filters.minGuests || ""}
                 onChange={handleFilterChange}
                 className="w-full max-w-xs px-2 py-1 border rounded text-xs"
                 min="1"
@@ -102,7 +110,7 @@ export default function FilterMenu({ filters, setFilters }) {
               <input
                 type="number"
                 name="maxGuests"
-                value={filters.maxGuests}
+                value={filters.maxGuests || ""}
                 onChange={handleFilterChange}
                 className="w-full max-w-xs px-2 py-1 border rounded text-xs"
                 min="1"
@@ -115,11 +123,11 @@ export default function FilterMenu({ filters, setFilters }) {
               setFilters({
                 title: "",
                 availability: "",
-                minPrice: "",
-                maxPrice: "",
-                rating: "",
-                minGuests: "",
-                maxGuests: "",
+                minPrice: null,
+                maxPrice: null,
+                rating: null,
+                minGuests: null,
+                maxGuests: null,
               })
             }
             className="w-full bg-gray-300 text-gray-700 px-2 py-1 text-xs rounded hover:bg-gray-400 transition"

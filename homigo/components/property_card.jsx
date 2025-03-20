@@ -20,12 +20,13 @@ export default function PropertyCard({ property }) {
       {/* Property Image */}
       <img
         src={property.image}
-        alt={property.title}
+        alt={property.propertytitle || "Property image"}
         className="w-full h-40 object-cover rounded-md mb-2"
+        onError={(e) => (e.target.src = "/Images/default-image.png")} // Replace broken image
       />
 
       {/* Title & Location */}
-      <h2 className="text-xl font-semibold">{property.title}</h2>
+      <h2 className="text-xl font-semibold">{property.propertytitle}</h2>
       <p className="text-gray-600">{property.location}</p>
       <p className="text-sm text-gray-500">{property.description}</p>
 
@@ -42,15 +43,17 @@ export default function PropertyCard({ property }) {
 
       {/* Availability & Max Guests (Right Aligned) */}
       <div className="flex justify-between items-center mt-2">
-        <p className="text-gray-700">Max Guests: {property.maxGuests}</p>
+        <p className="text-gray-700">
+          Max Guests: {property.maxguests || "N/A"}
+        </p>
         <p
           className={`font-semibold ${
-            property.available === "Available"
+            property.availability === "Available"
               ? "text-green-600"
               : "text-red-600"
           }`}
         >
-          {property.available}
+          {property.availability}
         </p>
       </div>
     </div>
