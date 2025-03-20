@@ -52,7 +52,7 @@ export default function Header() {
             {menuOpen && (
               <div className="absolute right-0 mt-6 w-48 bg-white rounded-md shadow-lg py-1 z-10">
                 <Link
-                  href="/userpage"
+                  href="/user_page"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Profile
@@ -64,7 +64,7 @@ export default function Header() {
                   Settings
                 </Link>
                 <button
-                  onClick={() => signOut()}
+                  onClick={() => signOut({ callbackUrl: "/register" })}
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Log Out

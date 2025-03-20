@@ -34,7 +34,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.replace("/dashboard");
+      router.replace("/userpage");
     } catch (error) {
       console.log("An error occurred whilst logging in: ", error);
     }
