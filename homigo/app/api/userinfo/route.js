@@ -68,32 +68,46 @@ export async function POST(req) {
     }
     
     const data = await req.json();
-    const { city, preferredNickname, bio } = data;
+    const { name, email, city, preferredNickname, bio } = data;
     
     await connectMongoDB();
     
-    // finds user
+    // Find user
     const user = await User.findOne({ email: session.user.email });
     
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
     
-    // find & update
+    // Update user document if name or email are provided
+    if (name || email) {
+      const updateFields = {};
+      if (name) updateFields.name = name;
+      if (email) updateFields.email = email;
+      
+      await User.findByIdAndUpdate(user._id, updateFields);
+      
+      // If email was updated, we should update the session too on next login
+      // Note: The session won't update immediately, but on next login
+    }
+    
+    // Update userInfo document
     const updatedUserInfo = await UserInfo.findOneAndUpdate(
-        { user: user._id }, 
-        {
-          user: user._id,  
-          city,
-          preferredNickname,
-          bio
-        },
-        { new: true, upsert: true }
-      );
+      { user: user._id }, 
+      {
+        user: user._id,  
+        city,
+        preferredNickname,
+        bio
+      },
+      { new: true, upsert: true }
+    );
     
     return NextResponse.json({
       message: "Profile updated successfully",
       userInfo: {
+        name: name || user.name,
+        email: email || user.email,
         city: updatedUserInfo.city,
         preferredNickname: updatedUserInfo.preferredNickname,
         bio: updatedUserInfo.bio

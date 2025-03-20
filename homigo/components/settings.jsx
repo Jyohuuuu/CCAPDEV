@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Header from "./header";
 import Image from "next/image";
 
@@ -105,42 +105,58 @@ export default function SettingsPage() {
       setSaving(true);
       setError(null);
       
-      {/* update data object */}
-      const updateData = {};
-      
-      if (field === 'fullName') {
-        {/* no function yet */}
-        return;
-      } else if (field === 'email') {
-        {/* no function yet */}
-        return;
+      if (field === 'email') {
+        // for email updates
+        const updateData = { email: formInputs.email };
+        
+        // proceeds if email is updated
+        if (formInputs.email !== userData.email) {
+          const response = await fetch('/api/userinfo', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateData)
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to update email');
+          }
+          
+          setSuccess("Email updated successfully! Logging you out...");
+          
+          setTimeout(() => {
+            signOut({ callbackUrl: '/' });
+          }, 1500);
+        } else {
+          toggleEdit(field);
+        }
       } else {
-        updateData[field === 'preferredNickname' ? 'preferredNickname' : field] = formInputs[field];
+        const updateData = {};
+        updateData[field === 'fullName' ? 'name' : field] = formInputs[field];
+        
+        const response = await fetch('/api/userinfo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updateData)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to update ${field}`);
+        }
+        
+        {/* update the user data */}
+        setUserData(prev => ({
+          ...prev,
+          [field]: formInputs[field]
+        }));
+        
+        toggleEdit(field);
+        setSuccess(`${field} updated successfully!`);
+        setTimeout(() => setSuccess(null), 3000);
       }
-      
-      const response = await fetch('/api/userinfo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updateData)
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
-      }
-      
-      {/* update the user data */}
-      setUserData(prev => ({
-        ...prev,
-        [field]: formInputs[field]
-      }));
-      
-      toggleEdit(field);
-
-      setSuccess(`${field} updated successfully!`);
-      setTimeout(() => setSuccess(null), 3000);
-      
     } catch (err) {
       setError(`Failed to update ${field}. Please try again.`);
       console.error(err);
@@ -148,59 +164,76 @@ export default function SettingsPage() {
       setSaving(false);
     }
   };
+  
+  // Add this function to handle the logout
+  const handleLogout = () => {
+    signOut({ callbackUrl: '/' });
+  };
 
   {/* save all changes */}
   const saveAllChanges = async () => {
-    try {
-      setSaving(true);
-      setError(null);
+  try {
+    setSaving(true);
+    setError(null);
+    
+    const updateData = {
+      name: formInputs.fullName, 
+      email: formInputs.email,
+      city: formInputs.city,
+      preferredNickname: formInputs.preferredNickname,
+      bio: formInputs.bio
+    };
+    
+    const response = await fetch('/api/userinfo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updateData)
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to update profile');
+    }
+    
+    {/* check if email is updated */}
+    const emailChanged = formInputs.email !== userData.email;
+    
+    setEditing({
+      fullName: false,
+      city: false,
+      preferredNickname: false,
+      email: false,
+      bio: false
+    });
+    
+    if (emailChanged) {
+      {/* show success message if email is changed and logs out */}
+      setSuccess("Profile updated successfully! Logging you out due to email change...");
+      setTimeout(() => {
+        signOut({ callbackUrl: '/' });
+      }, 1500);
+    } else {
+      setSuccess("Profile updated successfully!");
+      setTimeout(() => setSuccess(null), 3000);
       
-      const updateData = {
-        city: formInputs.city,
-        preferredNickname: formInputs.preferredNickname,
-        bio: formInputs.bio
-      };
-      
-      const response = await fetch('/api/userinfo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updateData)
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
-      }
-      
-      {/* update the user data */}
       setUserData(prev => ({
         ...prev,
+        fullName: formInputs.fullName,
+        email: formInputs.email,
         city: formInputs.city,
         preferredNickname: formInputs.preferredNickname,
         bio: formInputs.bio
       }));
-      
-      {/* reset editing state */}
-      setEditing({
-        fullName: false,
-        city: false,
-        preferredNickname: false,
-        email: false,
-        bio: false
-      });
-      
-      {/* show success message */}
-      setSuccess("Profile updated successfully!");
-      setTimeout(() => setSuccess(null), 3000);
-      
-    } catch (err) {
-      setError("Failed to update profile. Please try again.");
-      console.error(err);
-    } finally {
-      setSaving(false);
     }
-  };
+    
+  } catch (err) {
+    setError("Failed to update profile. Please try again.");
+    console.error(err);
+  } finally {
+    setSaving(false);
+  }
+};
 
   {/* if loading, show loading message */}
   if (loading) {

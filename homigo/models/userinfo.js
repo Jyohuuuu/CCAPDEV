@@ -25,9 +25,8 @@ const userInfoSchema = new Schema(
     }
 );
 
-userInfoSchema.virtual('userData', {  // Changed name to avoid confusion
-    ref: 'User',
-    localField: 'user',  // 
+userInfoSchema.virtual('userData', {  
+    localField: 'user',  
     foreignField: '_id',
     justOne: true
   });
