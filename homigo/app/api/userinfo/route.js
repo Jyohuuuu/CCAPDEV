@@ -7,7 +7,6 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    // gets the current authenticated user
     const session = await getServerSession(authOptions);
     
     if (!session) {
@@ -16,38 +15,22 @@ export async function GET() {
     
     await connectMongoDB();
     
-    // finds the email of the user
     const user = await User.findOne({ email: session.user.email });
     
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
     
-
-    let userInfo = await UserInfo.findOne({ user: user._id });
+    const userInfo = await UserInfo.findOne({ user: user._id }) || {};
     
-
-    if (!userInfo) {
-        console.log(`Creating new UserInfo for user: ${user.name} (${user._id})`);
-        
-        userInfo = new UserInfo({
-          user: user._id,  
-          city: "",
-          preferredNickname: "",
-          bio: ""
-        });
-        
-        await userInfo.save();
-      }
-    
-
     return NextResponse.json({
       userId: user._id,
       name: user.name,
       email: user.email,
       city: userInfo.city || "",
       preferredNickname: userInfo.preferredNickname || "",
-      bio: userInfo.bio || ""
+      bio: userInfo.bio || "",
+      createdAt: user.createdAt 
     });
     
   } catch (error) {
@@ -72,14 +55,14 @@ export async function POST(req) {
     
     await connectMongoDB();
     
-    // Find user
+    // finds user
     const user = await User.findOne({ email: session.user.email });
     
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
     
-    // Update user document if name or email are provided
+
     if (name || email) {
       const updateFields = {};
       if (name) updateFields.name = name;
@@ -87,11 +70,9 @@ export async function POST(req) {
       
       await User.findByIdAndUpdate(user._id, updateFields);
       
-      // If email was updated, we should update the session too on next login
-      // Note: The session won't update immediately, but on next login
     }
     
-    // Update userInfo document
+
     const updatedUserInfo = await UserInfo.findOneAndUpdate(
       { user: user._id }, 
       {

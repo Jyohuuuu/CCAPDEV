@@ -7,13 +7,69 @@ import Image from "next/image";
 
 export default function UserProfilePage() {
   const { data: session } = useSession();
+  const [userData, setUserData] = useState({
+    name: "",
+    city: "",
+    bio: "",
+    preferredNickname: "",
+    joinedDate: "February 2024" 
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchUserData() {
+      if (!session) return;
+      
+      try {
+        const response = await fetch('/api/userinfo');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+        
+        const data = await response.json();
+      
+        console.log("User data from API:", data);
+        
+        let formattedDate = "Date unavailable";
+        try {
+          if (data.createdAt) {
+            const joinDate = new Date(data.createdAt);
+            
+            {/*checks if the date is valid before formatting it*/ }
+            if (!isNaN(joinDate.getTime())) {
+              const month = joinDate.toLocaleString('default', { month: 'long' });
+              const year = joinDate.getFullYear();
+              formattedDate = `${month} ${year}`;
+            }
+          }
+        } catch (dateError) {
+          console.error("Error formatting date:", dateError);
+        }
+        
+        setUserData({
+          name: data.name || session?.user?.name || "",
+          city: data.city || "No city specified",
+          bio: data.bio || "This user hasn't added a bio yet.",
+          preferredNickname: data.preferredNickname || "",
+          joinedDate: formattedDate
+        });
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchUserData();
+  }, [session]);
+
   return (
     <>
       <Header />
       <div className="container mx-auto px-4 md:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/*profile card grid*/}
-
           <div className="md:col-span-1 mt-15">
             <div className=" w-75 min-h-[500px] border-2 border-gray-300 rounded-lg p-5 text-center shadow-md relative mx-auto">
               <Image
@@ -41,22 +97,22 @@ export default function UserProfilePage() {
           <div className="md:col-span-2 space-y-10 mt-12">
             {/* basic user info */}
             <div className="text-center md:text-left">
-              <h1 className="text-6xl font-semibold">{session?.user?.name}</h1>
+              <h1 className="text-6xl font-semibold">{userData.name}</h1>
               <p className="text-gray-500 text-sm mt-2">
-                Quezon City - Joined February 2024
+                {userData.city} - Joined {userData.joinedDate}
               </p>
               <p className="text-gray-500 text-sm md:max-w-lg mt-3 leading-relaxed">
-                Hi! I'm Kian, currently a student in De Lasalle University. I'm
-                a host in Homigo and I'm looking forward to meeting new people
-                and hosting them in my place!
+                {userData.bio}
               </p>
             </div>
 
             {/* properties */}
             <div>
-              {/* gets only the first name */}
+              {/* gets only the first name, if and only if there is no specified preferred nickname */}
               <h2 className="text-2xl mb-4 font-semibold">
-                {session?.user?.name?.split(" ")[0]}'s Properties
+                {userData.preferredNickname 
+                  ? `${userData.preferredNickname}'s Properties` 
+                  : `${userData.name.split(" ")[0]}'s Properties`}
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
