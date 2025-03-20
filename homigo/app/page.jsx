@@ -8,7 +8,7 @@ export default async function Home() {
   const session = await getServerSession(authOptions);
 
   // If a session exists, redirect to the dashboard
-  if (session) redirect("/dashboard");
+  if (session) redirect("/userpage");
 
   return (
     <main>
