@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm and Pay</title>
+    <link rel="stylesheet" href="../CSS Files/booking_style.css">
+    <script src="../JS Files/booking.js"></script>
+</head>
+<body>
+  <div class="header_container">
+      <header>      
+          <div class="logo">
+              <img src="../Images/TempLogo.png">
+              <span class="logo-text">HOMIGO</span>
+          </div>
+
+          <div class="profile-menu">
+              <span class="menu-icon">&#9776;</span>
+              <div class="profile">
+                  <!-- this is for when notification functions are coded in already-->
+                  <!--span class="notification">1</span-->
+                  <img src="userImage.jpg" onerror="this.onerror=null; this.src='../images/defaultUser.png';" class="profile-icon">
+              </div>
+          </div>
+      </header>
+  </div>
+
+  <h1>Confirm and Pay</h1>
+      
+    <div class="grid-container">
+    <div class="your_trip-card">
+        <div class="section-title">Your Trip</div>
+    
+        <div class="date-container">
+            <span>Dates</span>
+            <button class="edit-btn">Edit</button>
+        </div>
+        <div>Feb 14 - 16</div>
+    
+        <div class="guest-container">
+            <span>Guests</span>
+            <button class="edit-btn">Edit</button>
+        </div>
+        <div>4 guests</div>
+    </div>
+
+    <div class="property-card">
+        <div class="section-title">Selected Property</div>
+        <div class="property-item">
+            <img src="https://www.exceptionalvillas.com/public/upload/listing_photos_resize/w1900xh1900-Sea-Long-Bay-Villa-Stunning-Ocean-View-Beach-Access-Villa-Anguilla-44.jpg" alt="Property Image">
+            <div class="property-details">
+                <h3>Luxury Villa</h3>
+                <p>Located just steps from the beach, this beautiful house offers stunning ocean views and all the amenities you need for a relaxing vacation.</p>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+    <div class="payment-container">
+        <form class="payment-box"> 
+            <div class="section-title">
+                Pay With
+            </div>
+            <div class="payment-option">
+                <input type="radio" id="credit-card" name="payment-method" value="credit-card">
+                <label for="credit-card">Credit Card</label>
+            </div>
+          
+          <!-- Credit Card details section (initially hidden) -->
+          <div class="card-details" id="card-details-section">
+              <div class="form-group">
+                  <label for="card-number">Card Number</label>
+                  <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19">
+              </div>
+              
+              <div class="form-row">
+                  <div class="form-group">
+                      <label for="expiry">Expiration Date</label>
+                      <input type="text" id="expiry" placeholder="MM/YY" maxlength="5">
+                  </div>
+                  <div class="form-group">
+                      <label for="cvv">Security Code</label>
+                      <input type="text" id="cvv" placeholder="123" maxlength="3">
+                  </div>
+              </div>
+              
+              <div class="form-group">
+                  <label for="card-name">Name on Card</label>
+                  <input type="text" id="card-name" placeholder="John Doe">
+              </div>
+              
+              <div class="form-group">
+                  <label for="billing-zip">Billing Zip/Postal Code</label>
+                  <input type="text" id="billing-zip" placeholder="12345">
+              </div>
+          </div>
+          
+          <div class="payment-option">
+              <input type="radio" id="Cash" name="payment-method" value="Cash">
+              <label for="Cash">Cash</label>
+          </div>
+
+                <!-- Cash payment disclaimer (initially hidden) -->
+            <div class="payment-disclaimer" id="cash-disclaimer">
+                <p><strong>Note:</strong> If you choose the cash option, you will pay the required amount to the property caretaker.</p>
+            </div>
+        </form>
+
+        <div class="price-box">
+            <div class="section-title">Price Details</div>
+            
+            <div class="price-details">
+                <div class="price-row">
+                    <div class="price-label">₱15,000 × 2 nights</div>
+                    <div class="price-value">₱30,000</div>
+                </div>
+                
+                <div class="price-row">
+                    <div class="price-label">Cleaning fee</div>
+                    <div class="price-value">₱2,500</div>
+                </div>
+                
+                <div class="price-row">
+                    <div class="price-label">Service fee</div>
+                    <div class="price-value">₱500</div>
+                </div>
+                
+                <div class="price-row price-subtotal">
+                    <div class="price-label">Subtotal</div>
+                    <div class="price-value">₱33,000</div>
+                </div>
+                
+                <div class="price-row price-total">
+                    <div class="price-label">Total (PHP)</div>
+                    <div class="price-value">₱33,000</div>
+                </div>
+            </div>
+            
+            <div class="price-notes">You won't be charged yet</div>
+        </div>
+    </div>
+    
+    <button type="submit" class="confirm-btn">Confirm and Pay</button>
+  </div>
+</body>
+</html>

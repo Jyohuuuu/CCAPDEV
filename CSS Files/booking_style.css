@@ -1,0 +1,478 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+:root {
+    --primary-color: #2a9d8f;
+    --secondary-color: #264653;
+    --accent-color: #e9c46a;
+    --light-gray: #c0c0c0; 
+    --border-color: #808080; 
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0px;
+    padding: 0px;
+    position: relative;
+    background-color: white;
+    background-image: url("https://www.exceptionalvillas.com/public/upload/listing_photos_resize/w1900xh1900-Sea-Long-Bay-Villa-Stunning-Ocean-View-Beach-Access-Villa-Anguilla-44.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    backdrop-filter: blur(5px); /* Slight blur effect */
+}
+
+/* Ensure content has proper contrast */
+.container {
+    max-width: 90vw;
+    margin: auto;
+    padding: 20px;
+    overflow: hidden;
+}
+
+header {
+    position: relative;
+    background-color: white;
+    padding: 35px;
+    border-bottom: 2px solid var(--border-color); /* Using variable for darker border */
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 10px; 
+    left: 20px;
+}
+
+.logo img {
+    position: relative;
+    height: 50px;
+    width: 50px;
+}
+
+.logo-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: black;
+    margin-left: 10px;
+}
+
+.profile-menu {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    width: 70px;
+    height: 35px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 5px;
+}
+
+.menu-icon {
+    font-size: 18px;
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.profile-icon {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    object-fit: cover;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+h1 {
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    margin: 40px auto;
+    color: var(--secondary-color);
+    font-size: 32px;
+    font-weight: 700;
+    
+    /* Add border styling */
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 15px 30px;
+    max-width: 300px;
+    background-color: white;
+    box-shadow: var(--shadow);
+    position: relative;
+    z-index: 1;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: minmax(300px, 1fr) minmax(400px, 2fr);
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
+}
+
+/* Card styling */
+.your_trip-card {
+    padding: 30px;
+    max-height: 250px; 
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+}
+
+/* Make date and guest values bold */
+.date-container + div,
+.guest-container + div {
+    font-weight: bold;
+    font-size: 18px;
+    color: #333; 
+}
+
+/* Add better spacing between elements */
+.your_trip-card > div {
+    margin-bottom: 10px; 
+}
+
+.your_trip-card > div:last-child {
+    margin-bottom: 5px; 
+}
+
+.your_trip-card, .property-card, .payment-box, .price-box {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color); 
+}
+
+.property-card {
+    padding: 30px;
+}
+
+.date-container, .guest-container {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.edit-btn {
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.section-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--secondary-color);
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--light-gray);
+}
+  
+/* Property styling */
+.property-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.property-item img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+
+}
+
+.property-details {
+    padding: 25px;
+}
+
+.property-details h3 {
+    font-size: 24px;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--secondary-color);
+}
+
+.property-details p {
+    color: #666;
+    margin-bottom: 0;
+}
+
+/* Payment form */
+.payment-box {
+    max-width: 100%; /* Allow full width in grid cell */
+    margin: 0; /* Remove auto margins */
+    padding: 30px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.payment-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.payment-option input[type="radio"] {
+    margin-right: 15px;
+    transform: scale(1.2);
+    accent-color: var(--primary-color);
+    position: relative;
+    z-index: 1;
+}
+
+.payment-option label {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 15px 15px 15px 45px;
+    cursor: pointer;
+}
+
+/* Style for payment option radio box */
+.payment-option input[type="radio"]:checked + label {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.payment-option:has(input[type="radio"]:checked) {
+    border-color: var(--primary-color);
+    background-color: rgba(42, 157, 143, 0.05);
+}
+
+/* Style for hover state */
+.payment-option:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(42, 157, 143, 0.05);
+}
+
+.payment-option:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(42, 157, 143, 0.05);
+}
+
+.payment-option input {
+    margin-right: 15px;
+    transform: scale(1.2);
+    accent-color: var(--primary-color);
+}
+
+/* Price box */
+.price-box {
+    max-width: 100%; /* Allow full width in grid cell */
+    margin: 0; /* Remove auto margins */
+    padding: 30px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    font-family: 'Poppins', sans-serif;
+}
+
+.price-box .section-title {
+    text-align: left;
+    margin-bottom: 25px;
+}
+
+.price-details {
+    width: 100%;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    color: #444;
+}
+
+.price-row:last-of-type {
+    margin-bottom: 0;
+}
+
+.price-label {
+    text-align: left;
+    font-size: 16px;
+}
+
+.price-value {
+    text-align: right;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.price-subtotal {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed var(--border-color);
+    font-size: 17px;
+}
+
+.price-total {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid var(--border-color);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+
+.price-notes {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #666;
+    text-align: right;
+    font-style: italic;
+}
+
+/* Credit card form styling */
+.card-details {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    margin-right: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #444;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+.form-row .form-group {
+    flex: 1;
+}
+
+/* Payment disclaimer */
+.payment-disclaimer {
+    margin-top: 10px;
+    padding: 12px 15px;
+    background-color: #f8f8f8;
+    border-left: 4px solid var(--accent-color);
+    color: #555;
+    font-size: 14px;
+    border-radius: 0 4px 4px 0;
+}
+
+.card-details, .payment-disclaimer {
+    display: none; /* Initially hidden */
+}
+
+.card-details.active, .payment-disclaimer.active {
+    display: block;
+}
+
+/* Confirm button */
+.confirm-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    display: block;
+    margin: 30px auto;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(42, 157, 143, 0.3);
+    max-width: 300px;
+}
+
+/* Grid for payment section */
+.payment-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Payment form wider than price box */
+    gap: 200px;
+    max-width: 1200px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+.grid-container {
+    max-height: none;
+}
+
+.property-item img {
+    min-height: auto;
+}
+}
+
+/* Responsive design for payment container */
+@media (max-width: 900px) {
+    .payment-container {
+        grid-template-columns: 1fr; /* Stack on smaller screens */
+    }
+    
+    .payment-box, .price-box {
+        margin-bottom: 30px;
+    }
+}
