@@ -165,7 +165,6 @@ export default function SettingsPage() {
     }
   };
   
-  // Add this function to handle the logout
   const handleLogout = () => {
     signOut({ callbackUrl: '/' });
   };
