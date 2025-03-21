@@ -167,6 +167,7 @@ export default function PropertyListPage() {
             />
             <h2 className="text-xl font-bold mb-2">{selectedProperty.title}</h2>
             <p className="text-gray-600 mb-4">{selectedProperty.description}</p>
+            <p className="text-gray-400 mb-2">by: {selectedProperty.lister?.name}</p>
             <p className="text-lg font-semibold text-blue-600 mb-6">
               ₱{selectedProperty.pricepernight} per night
             </p>
