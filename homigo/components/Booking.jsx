@@ -49,13 +49,13 @@ const BookingConfirmation = () => {
     };
 
     // Mock data for unavailable dates 
-    const unavailableDates = useMemo(() => [
-      new Date(2025, 1, 18), // Feb 18, 2025
-      new Date(2025, 1, 19), // Feb 19, 2025
-      new Date(2025, 1, 20), // Feb 20, 2025
-      new Date(2025, 2, 1),  // Mar 1, 2025
-      new Date(2025, 2, 2),  // Mar 2, 2025
-    ], []);
+    const [unavailableDates, setUnavailableDates] = useState([
+      new Date(2025, 1, 18),
+      new Date(2025, 1, 19),
+      new Date(2025, 1, 20),
+      new Date(2025, 2, 1),
+      new Date(2025, 2, 2),
+    ]);
 
     // Function to check if a date is unavailable
     const isDateUnavailable = (date) => {
@@ -128,22 +128,28 @@ const BookingConfirmation = () => {
     }, [startDate, endDate]);
 
     // Update price calculations based on nights
-    const priceDetails = useMemo(() => {
-      const nightlyRate = 15000;
-      const subtotal = nightlyRate * nights;
-      const cleaningFee = 2500;
-      const serviceFee = 500;
-      const total = subtotal + cleaningFee + serviceFee;
-      
-      return {
-        nightlyRate,
-        nights,
-        subtotal,
-        cleaningFee,
-        serviceFee,
-        total
-      };
-    }, [nights]);
+    const [priceDetails, setPriceDetails] = useState({
+      nightlyRate: 15000,
+      nights: 0,
+      subtotal: 0,
+      cleaningFee: 2500,
+      serviceFee: 500,
+      total: 0
+    });
+
+    useEffect(() => {
+      if (startDate && endDate) {
+        const diffTime = Math.abs(endDate - startDate);
+        const nightCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        setPriceDetails(prev => ({
+          ...prev,
+          nights: nightCount,
+          subtotal: prev.nightlyRate * nightCount,
+          total: (prev.nightlyRate * nightCount) + prev.cleaningFee + prev.serviceFee
+        }));
+      }
+    }, [startDate, endDate]);
 
   const styles = {
     // Some styles taken from CSS but added here because it wont work in booking_style.css
@@ -376,52 +382,118 @@ const BookingConfirmation = () => {
     return true;
   };
 
-  // Add submit handler
-  const handleBookingSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitError('');
-    
-    if (!validateForm()) {
-      // Scroll to error message
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    
-    try {
-      setIsSubmitting(true);
-      
-      // In a real app, you'd make an API call here
-      // Example:
-      // const response = await fetch('/api/bookings', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     startDate,
-      //     endDate,
-      //     guestCount,
-      //     paymentMethod,
-      //     cardDetails: paymentMethod === 'credit-card' ? {
-      //       // Don't send full card details in a real app!
-      //       // This would be handled by a payment processor
-      //       lastFour: cardNumber.slice(-4)
-      //     } : null
-      //   })
-      // });
-      
-      // Simulate API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setSubmitSuccess(true);
-      
-      // Redirect or show success message
-    } catch (error) {
-      setSubmitError('An error occurred while processing your booking');
-      console.error('Booking error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // In booking.jsx, update the handleBookingSubmit function
+const handleBookingSubmit = async (e) => {
+  e.preventDefault();
+  setSubmitError('');
   
+  // Get propertyId from URL parameters or from props
+  // Example: /booking?propertyId=123
+  const urlParams = new URLSearchParams(window.location.search);
+  const propertyId = urlParams.get('propertyId');
+  
+  if (!propertyId) {
+    setSubmitError('Property ID is missing');
+    return;
+  }
+  
+  if (!validateForm()) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+  
+  try {
+    setIsSubmitting(true);
+    
+    const response = await fetch('/api/booking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        startDate,
+        endDate,
+        guestCount,
+        propertyId,  // Now using actual propertyId
+        paymentMethod,
+        totalPrice: priceDetails.total
+      })
+    });
+    
+    // Add this to complete the function
+    const data = await response.json();
+
+    if (!response.ok) {
+      setSubmitError(data.message || 'Failed to create booking');
+    } else {
+      setSubmitSuccess(true);
+      // Optionally redirect or clear form
+      // window.location.href = '/bookings'; // If you want to redirect
+    }
+  } catch (error) {
+    setSubmitError(error.message || 'An error occurred while processing your booking');
+    console.error('Booking error:', error);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+  // Add these imports if not already present
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Add this useEffect to fetch property data
+  useEffect(() => {
+    const fetchPropertyDetails = async () => {
+      try {
+        setLoading(true);
+        const urlParams = new URLSearchParams(window.location.search);
+        const propertyId = urlParams.get('propertyId');
+        
+        if (!propertyId) {
+          setSubmitError('Property ID is missing');
+          return;
+        }
+        
+        const response = await fetch(`/api/properties/${propertyId}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to load property details');
+        }
+        
+        const data = await response.json();
+        setProperty(data.property);
+        
+        // Update price calculations based on property data
+        const updatedPriceDetails = {
+          nightlyRate: data.property.price,
+          nights,
+          subtotal: data.property.price * nights,
+          cleaningFee: data.property.cleaningFee || 2500,
+          serviceFee: data.property.serviceFee || 500,
+          total: (data.property.price * nights) + 
+                 (data.property.cleaningFee || 2500) + 
+                 (data.property.serviceFee || 500)
+        };
+        setPriceDetails(updatedPriceDetails);
+        
+        // Update unavailable dates if needed
+        if (data.property.unavailableDates) {
+          const formattedDates = data.property.unavailableDates.map(
+            date => new Date(date)
+          );
+          setUnavailableDates(formattedDates);
+        }
+        
+      } catch (error) {
+        console.error('Error fetching property:', error);
+        setSubmitError('Could not load property details');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchPropertyDetails();
+  }, [nights]);
+
   return (
     <>
     <Header />
@@ -508,22 +580,30 @@ const BookingConfirmation = () => {
           )}
         </div>
         
-        {/* Property card - keep as is */}
+        {/* Property card*/}
         <div className="property-card">
           <div className="section-title">Selected Property</div>
-          <div className="property-item">
-            <img 
-              src="https://www.exceptionalvillas.com/public/upload/listing_photos_resize/w1900xh1900-Sea-Long-Bay-Villa-Stunning-Ocean-View-Beach-Access-Villa-Anguilla-44.jpg" 
-              alt="Property Image"
-              width="800" 
-              height="250"
-              loading="eager"
-            />
-            <div className="property-details">
-              <h3>Luxury Villa</h3>
-              <p>Located just steps from the beach, this beautiful house offers stunning ocean views and all the amenities you need for a relaxing vacation.</p>
+          {loading ? (
+            <div>Loading property details...</div>
+          ) : property ? (
+            <div className="property-item">
+              <img 
+                src={property.image} 
+                alt={property.propertytitle}
+                width="800" 
+                height="250"
+                loading="eager"
+                onError={handleImageError}
+              />
+              <div className="property-details">
+                <h3>{property.propertytitle}</h3>
+                <p>{property.description}</p>
+                <p><strong>Location:</strong> {property.location}</p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div>Failed to load property details</div>
+          )}
         </div>
         
       </div> 

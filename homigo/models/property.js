@@ -30,25 +30,7 @@ const propertySchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    availability: {
-      type: String,
-      enum: ["available", "booked"],
-      default: "available",
-    },
-    bookstart: {
-      type: Date,
-      default: null,
-    },
-    bookend: {
-      type: Date,
-      default: null,
-    },
-    currentguests: {
-      type: Number,
-      default: 0,
-    },
 
-    // New fields
     cleaningFee: {
       type: Number,
       default: 2500,
