@@ -152,7 +152,7 @@ const BookingConfirmation = () => {
     }, [startDate, endDate]);
 
   const styles = {
-    // Some styles taken from CSS but added here because it wont work in booking_style.css
+    // Some styles taken from CSS
     paymentOption: {
       position: 'relative',
       display: 'flex',
@@ -343,7 +343,7 @@ const BookingConfirmation = () => {
   const [cardName, setCardName] = useState('');
   const [billingZip, setBillingZip] = useState('');
 
-  // Add validation function
+  // Validation function
   const validateForm = () => {
     if (paymentMethod === 'credit-card') {
       if (!cardNumber || cardNumber.replace(/\s/g, '').length < 16) {
@@ -382,65 +382,61 @@ const BookingConfirmation = () => {
     return true;
   };
 
-  // In booking.jsx, update the handleBookingSubmit function
+  // Handler for form submission
 const handleBookingSubmit = async (e) => {
-  e.preventDefault();
-  setSubmitError('');
-  
-  // Get propertyId from URL parameters or from props
-  // Example: /booking?propertyId=123
-  const urlParams = new URLSearchParams(window.location.search);
-  const propertyId = urlParams.get('propertyId');
-  
-  if (!propertyId) {
-    setSubmitError('Property ID is missing');
-    return;
-  }
-  
-  if (!validateForm()) {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-  
-  try {
-    setIsSubmitting(true);
+    e.preventDefault();
+    setSubmitError('');
     
-    const response = await fetch('/api/booking', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        startDate,
-        endDate,
-        guestCount,
-        propertyId,  // Now using actual propertyId
-        paymentMethod,
-        totalPrice: priceDetails.total
-      })
-    });
+    // Get propertyId from URL parameters or from props
+    // Example: /booking?propertyId=123
+    const urlParams = new URLSearchParams(window.location.search);
+    const propertyId = urlParams.get('propertyId');
     
-    // Add this to complete the function
-    const data = await response.json();
-
-    if (!response.ok) {
-      setSubmitError(data.message || 'Failed to create booking');
-    } else {
-      setSubmitSuccess(true);
-      // Optionally redirect or clear form
-      // window.location.href = '/bookings'; // If you want to redirect
+    if (!propertyId) {
+      setSubmitError('Property ID is missing');
+      return;
     }
-  } catch (error) {
-    setSubmitError(error.message || 'An error occurred while processing your booking');
-    console.error('Booking error:', error);
-  } finally {
-    setIsSubmitting(false);
-  }
+    
+    if (!validateForm()) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      
+      const response = await fetch('/api/booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          startDate,
+          endDate,
+          guestCount,
+          propertyId,  
+          paymentMethod,
+          totalPrice: priceDetails.total
+        })
+      });
+      
+      const data = await response.json();
+
+      if (!response.ok) {
+        setSubmitError(data.message || 'Failed to create booking');
+      } else {
+        setSubmitSuccess(true);
+      }
+    } catch (error) {
+      setSubmitError(error.message || 'An error occurred while processing your booking');
+      console.error('Booking error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
 };
 
-  // Add these imports if not already present
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Add this useEffect to fetch property data
+  // Fetch property data
   useEffect(() => {
     const fetchPropertyDetails = async () => {
       try {
@@ -475,7 +471,7 @@ const handleBookingSubmit = async (e) => {
         };
         setPriceDetails(updatedPriceDetails);
         
-        // Update unavailable dates if needed
+        // Update unavailable dates
         if (data.property.unavailableDates) {
           const formattedDates = data.property.unavailableDates.map(
             date => new Date(date)
@@ -501,7 +497,7 @@ const handleBookingSubmit = async (e) => {
       <h1>Confirm and Pay</h1>
       
       <div className="grid-container" style={isEditingDates ? { gap: '30px', alignItems: 'flex-start' } : {}}>
-        {/* Your Trip card - keep as is */}
+        {/* Your Trip card */}
         <div className="your_trip-card" style={isEditingDates ? { 
             maxHeight: 'none',
             height: 'auto',
@@ -509,7 +505,7 @@ const handleBookingSubmit = async (e) => {
             width: '100%',
             boxSizing: 'border-box'
           } : {}}>
-          {/* Content remains the same */}
+
           <div className="section-title">Your Trip</div>
           
           {/* Date selection */}
