@@ -47,6 +47,28 @@ const propertySchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+
+    // New fields
+    cleaningFee: {
+      type: Number,
+      default: 2500,
+    },
+    serviceFee: {
+      type: Number,
+      default: 500,
+    },
+    rating: {
+      type: Number,
+      default: 0,
+    },
+    max_guests: {
+      type: Number,
+      required: true,
+    },
+    unavailableDates: [{
+      type: Date,
+      default: []
+    }],
     lister: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
