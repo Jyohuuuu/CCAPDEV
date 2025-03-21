@@ -12,7 +12,7 @@ export default function UserProfilePage() {
     city: "",
     bio: "",
     preferredNickname: "",
-    joinedDate: "February 2024" 
+    role: "",
   });
   const [loading, setLoading] = useState(true);
 
@@ -50,9 +50,10 @@ export default function UserProfilePage() {
         setUserData({
           name: data.name || session?.user?.name || "",
           city: data.city || "No city specified",
-          bio: data.bio || "This user hasn't added a bio yet.",
+          bio: data.bio || "You have not added a bio yet.",
           preferredNickname: data.preferredNickname || "",
-          joinedDate: formattedDate
+          joinedDate: formattedDate,
+          role: data.role
         });
       } catch (err) {
         console.error("Error fetching user data:", err);
@@ -84,7 +85,7 @@ export default function UserProfilePage() {
                   ★ 5.0{" "}
                   <span className="text-gray-500 font-normal">(5 reviews)</span>
                 </span>
-                <p className="text-sm font-medium">Host</p>
+                <p className="text-sm font-medium">{userData.role}</p>
               </div>
               <hr className="border-t-2 border-gray-200 my-3" />
             </div>
