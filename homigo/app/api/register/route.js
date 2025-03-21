@@ -31,6 +31,18 @@ export async function POST(req) {
             );
         }
 
+        const existingName = await User.findOne({ 
+            name: { $regex: `^${name}$`, $options: 'i' } 
+        });
+        
+        if (existingName) {
+            return NextResponse.json(
+                { message: "Name already taken." },
+                { status: 409 } // Conflict
+            );
+        }
+
+
         // Create new user
         await User.create({ 
             name, 
