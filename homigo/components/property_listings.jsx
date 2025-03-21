@@ -62,8 +62,29 @@ export default function PropertyListPage() {
       alert("Please select both check-in and check-out dates.");
       return;
     }
-    console.log("Reserving:", selectedProperty.title, checkIn, checkOut);
-    // Send POST to reservation API here
+    
+    const startDate = new Date(checkIn);
+    const endDate = new Date(checkOut);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (startDate < today) {
+      alert("Check-in date cannot be in the past.");
+      return;
+    }
+    
+    if (endDate <= startDate) {
+      alert("Check-out date must be after check-in date.");
+      return;
+    }
+    
+    // Convert dates to ISO strings for URL parameters
+    const checkInISO = encodeURIComponent(startDate.toISOString());
+    const checkOutISO = encodeURIComponent(endDate.toISOString());
+    
+    // Navigate to booking page with query parameters
+    router.push(`/booking?propertyId=${selectedProperty._id}&checkIn=${checkInISO}&checkOut=${checkOutISO}`);
+    
     closeModal();
   };
 
@@ -155,6 +176,7 @@ export default function PropertyListPage() {
                 type="date"
                 className="w-full border border-gray-300 rounded px-3 py-2"
                 value={checkIn}
+                min={new Date().toISOString().split('T')[0]}
                 onChange={(e) => setCheckIn(e.target.value)}
               />
               <label className="block text-sm font-medium">Check-out</label>
@@ -162,6 +184,7 @@ export default function PropertyListPage() {
                 type="date"
                 className="w-full border border-gray-300 rounded px-3 py-2"
                 value={checkOut}
+                min={checkIn || new Date().toISOString().split('T')[0]}
                 onChange={(e) => setCheckOut(e.target.value)}
               />
             </div>

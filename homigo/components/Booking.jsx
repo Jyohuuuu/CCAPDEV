@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import '../app/CSS Files/booking_style.css';
 import DatePicker from 'react-datepicker'; 
 import 'react-datepicker/dist/react-datepicker.css';
-import Header from './header'; // Import the Header component
+import Header from './header'; 
 
 const BookingConfirmation = () => {
     // Existing state
@@ -436,59 +436,82 @@ const handleBookingSubmit = async (e) => {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch property data
-  useEffect(() => {
-    const fetchPropertyDetails = async () => {
-      try {
-        setLoading(true);
+  // Function to fetch property details
+  const fetchPropertyDetails = async (propertyId) => {
+    try {
+      setLoading(true);
+      
+      if (!propertyId) {
         const urlParams = new URLSearchParams(window.location.search);
-        const propertyId = urlParams.get('propertyId');
-        
-        if (!propertyId) {
-          setSubmitError('Property ID is missing');
-          return;
-        }
-        
-        const response = await fetch(`/api/properties/${propertyId}`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to load property details');
-        }
-        
-        const data = await response.json();
-        setProperty(data.property);
-        
-        // Update price calculations based on property data
-        const updatedPriceDetails = {
-          nightlyRate: data.property.price,
-          nights,
-          subtotal: data.property.price * nights,
-          cleaningFee: data.property.cleaningFee || 2500,
-          serviceFee: data.property.serviceFee || 500,
-          total: (data.property.price * nights) + 
-                 (data.property.cleaningFee || 2500) + 
-                 (data.property.serviceFee || 500)
-        };
-        setPriceDetails(updatedPriceDetails);
-        
-        // Update unavailable dates
-        if (data.property.unavailableDates) {
-          const formattedDates = data.property.unavailableDates.map(
-            date => new Date(date)
-          );
-          setUnavailableDates(formattedDates);
-        }
-        
-      } catch (error) {
-        console.error('Error fetching property:', error);
-        setSubmitError('Could not load property details');
-      } finally {
-        setLoading(false);
+        propertyId = urlParams.get('propertyId');
       }
-    };
-    
-    fetchPropertyDetails();
+      
+      if (!propertyId) {
+        setSubmitError('Property ID is missing');
+        return;
+      }
+      
+      const response = await fetch(`/api/properties/${propertyId}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to load property details');
+      }
+      
+      const data = await response.json();
+      setProperty(data.property);
+      
+      // Update price calculations based on property data
+      const updatedPriceDetails = {
+        nightlyRate: data.property.price,
+        nights,
+        subtotal: data.property.price * nights,
+        cleaningFee: data.property.cleaningFee || 2500,
+        serviceFee: data.property.serviceFee || 500,
+        total: (data.property.price * nights) + 
+               (data.property.cleaningFee || 2500) + 
+               (data.property.serviceFee || 500)
+      };
+      setPriceDetails(updatedPriceDetails);
+      
+      // Update unavailable dates
+      if (data.property.unavailableDates) {
+        const formattedDates = data.property.unavailableDates.map(
+          date => new Date(date)
+        );
+        setUnavailableDates(formattedDates);
+      }
+      
+    } catch (error) {
+      console.error('Error fetching property:', error);
+      setSubmitError('Could not load property details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // to fetch property when nights change
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const propertyId = urlParams.get('propertyId');
+    if (propertyId) {
+      fetchPropertyDetails(propertyId);
+    }
   }, [nights]);
+
+  // initialize with URL parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const propertyId = params.get('propertyId');
+    const checkInParam = params.get('checkIn');
+    const checkOutParam = params.get('checkOut');
+    
+    if (propertyId && checkInParam && checkOutParam) {
+      // Set your booking state with these values
+      setStartDate(new Date(checkInParam));
+      setEndDate(new Date(checkOutParam));
+      fetchPropertyDetails(propertyId);
+    }
+  }, []);
 
   return (
     <>
