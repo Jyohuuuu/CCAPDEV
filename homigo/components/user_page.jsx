@@ -83,11 +83,7 @@ export default function UserProfilePage() {
                 className="rounded-full mx-auto"
               />
               <div className="mt-3">
-                <span className="font-bold text-lg">
-                  ★ 5.0{" "}
-                  <span className="text-gray-500 font-normal">(5 reviews)</span>
-                </span>
-                <p className="text-sm font-medium">{userData.role}</p>
+                <p className="text-m font-medium">{userData.role}</p>
               </div>
               <hr className="border-t-2 border-gray-200 my-3" />
             </div>
