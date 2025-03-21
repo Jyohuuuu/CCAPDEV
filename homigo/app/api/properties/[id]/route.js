@@ -19,7 +19,17 @@ export async function GET(req, { params }) {
       return NextResponse.json({ message: "Property not found" }, { status: 404 });
     }
     
-    return NextResponse.json({ property });
+    return NextResponse.json({
+      property: {
+        propertytitle: property.title,
+        price: property.pricepernight,
+        location: property.location,
+        description: property.description,
+        image: property.image,
+        cleaningFee: 2500, // Default value since schema doesn't have it
+        serviceFee: 500, // Default value since schema doesn't have it
+      }
+    });
     
   } catch (error) {
     console.error("Error fetching property:", error);
