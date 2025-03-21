@@ -32,7 +32,7 @@ export default function Header() {
             height={50}
           />
           <Link
-            href="/dashboard"
+            href="/userpage"
             className="text-black text-xl font-semibold ml-2"
           >
             HOMIGO
