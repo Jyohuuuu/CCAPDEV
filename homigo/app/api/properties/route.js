@@ -20,7 +20,11 @@ export async function GET(req) {
   }
 
   try {
-    const properties = await Property.find(query).sort({ createdAt: -1 });
+    const properties = await Property.find(query)
+    .populate("lister", "name")
+    .sort({ createdAt: -1 });
+
+
     return new Response(JSON.stringify({ properties }), { status: 200 });
   } catch (error) {
     return new Response(JSON.stringify({ error: "Failed to fetch properties" }), {
