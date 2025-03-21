@@ -2,11 +2,12 @@ import mongoose from "mongoose";
 
 const propertySchema = new mongoose.Schema(
   {
-    image: {
-      type: String,
-      required: true, // Ensure an image URL is provided
+    lister: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    propertytitle: {
+    title: {
       type: String,
       required: true,
     },
@@ -18,68 +19,29 @@ const propertySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    price: {
+    pricepernight: {
       type: Number,
       required: true,
     },
-    rating: {
-      type: Number,
-      default: 0,
-    },
-    max_guests: {
-      type: Number,
-      required: true,
-    },
-    availability: {
+    image: {
       type: String,
-      enum: ["available", "booked"],
-      default: "available",
+      required: true, // Ensure an image URL is provided
     },
-    bookstart: {
+    createdAt: {
       type: Date,
-      default: null,
-    },
-    bookend: {
-      type: Date,
-      default: null,
-    },
-    currentguests: {
-      type: Number,
-      default: 0,
-    },
-
-    // New fields
-    cleaningFee: {
-      type: Number,
-      default: 2500,
-    },
-    serviceFee: {
-      type: Number,
-      default: 500,
-    },
-    rating: {
-      type: Number,
-      default: 0,
-    },
-    max_guests: {
-      type: Number,
-      required: true,
-    },
-    unavailableDates: [{
-      type: Date,
-      default: []
-    }],
-    lister: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+      default: Date.now,
     },
   },
-  { timestamps: true }
 );
+
+propertySchema.virtual('userData', {  
+    localField: 'user',  
+    foreignField: '_id',
+    justOne: true
+});
 
 const Property =
   mongoose.models.Property ||
-  mongoose.model("Property", propertySchema, "propertylistings");
+  mongoose.model("Property", propertySchema);
 
 export default Property;

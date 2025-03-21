@@ -1,155 +1,179 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Header from "./header";
-import PropertyCard from "./property_card";
-import FilterMenu from "./filtermenu";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import Header from "../components/Header";
 
-export default function PropertyListings() {
+export default function PropertyListPage() {
+  const { data: session, status } = useSession();
+  const pathname = usePathname();
+  const router = useRouter();
+
   const [properties, setProperties] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState({
-    title: "",
-    availability: "",
-    minPrice: "",
-    maxPrice: "",
-    rating: "",
-    minGuests: "",
-    maxGuests: "",
-  });
+  const [showModal, setShowModal] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+
+  const propertiesPerPage = 12;
 
   useEffect(() => {
-    let ignore = false;
-    const fetchProperties = async () => {
-      console.log("Fetching properties from API...");
-      setLoading(true);
+    if (status === "unauthenticated") {
+      router.push("/");
+    } else if (status === "authenticated") {
+      fetchProperties();
+    }
+  }, [status, pathname]);
 
-      try {
-        const queryParams = new URLSearchParams({
-          page: 1, // ✅ Always reset to page 1 when filters change
-          limit: 12,
-        });
+  const fetchProperties = async () => {
+    try {
+      const res = await fetch(
+        `/api/properties?userId=${session.user.id}&excludeMine=${
+          pathname === "/listings"
+        }`
+      );
+      const data = await res.json();
+      setProperties(data.properties);
+      setHasMore(data.properties.length > propertiesPerPage);
+    } catch (err) {
+      console.error("Error fetching properties:", err);
+    }
+  };
 
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value) queryParams.append(key, value);
-        });
+  const paginatedProperties = properties.slice(0, page * propertiesPerPage);
 
-        console.log("Fetching with filters:", queryParams.toString());
+  const openModal = (property) => {
+    setSelectedProperty(property);
+    setShowModal(true);
+  };
 
-        const res = await fetch(`/api/properties?${queryParams.toString()}`);
-        if (!res.ok) throw new Error("Failed to fetch properties");
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedProperty(null);
+    setCheckIn("");
+    setCheckOut("");
+  };
 
-        const data = await res.json();
-        console.log("API response:", data);
-
-        if (!data || !Array.isArray(data.properties)) {
-          throw new Error("Invalid response from server");
-        }
-
-        if (!ignore) {
-          setProperties(data.properties); // ✅ Reset property list
-          setHasMore(data.properties.length === 12);
-          setPage(1); // ✅ Reset pagination
-        }
-      } catch (error) {
-        console.error("Error fetching properties:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProperties();
-    return () => {
-      ignore = true;
-    };
-  }, [filters]); // ✅ Runs only when filters change
-
-  // ✅ Handle Pagination Separately
-  useEffect(() => {
-    if (page === 1) return; // ✅ Avoid duplicate fetch on filter change
-
-    let ignore = false;
-    const fetchMoreProperties = async () => {
-      console.log("Fetching more properties...");
-      setLoading(true);
-
-      try {
-        const queryParams = new URLSearchParams({
-          page,
-          limit: 12,
-        });
-
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value) queryParams.append(key, value);
-        });
-
-        const res = await fetch(`/api/properties?${queryParams.toString()}`);
-        if (!res.ok) throw new Error("Failed to fetch properties");
-
-        const data = await res.json();
-        console.log("API response (pagination):", data);
-
-        if (!data || !Array.isArray(data.properties)) {
-          throw new Error("Invalid response from server");
-        }
-
-        if (!ignore) {
-          setProperties((prev) => [...prev, ...data.properties]); // ✅ Append new results
-          setHasMore(data.properties.length === 12);
-        }
-      } catch (error) {
-        console.error("Error fetching properties:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMoreProperties();
-    return () => {
-      ignore = true;
-    };
-  }, [page]); // ✅ Runs only when page changes
+  const handleReserve = () => {
+    if (!checkIn || !checkOut) {
+      alert("Please select both check-in and check-out dates.");
+      return;
+    }
+    console.log("Reserving:", selectedProperty.title, checkIn, checkOut);
+    // Send POST to reservation API here
+    closeModal();
+  };
 
   return (
     <>
       <Header />
-      <div className="p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-bold">Property Listings</h1>
-          <FilterMenu
-            filters={filters}
-            setFilters={setFilters}
-            setPage={setPage}
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {properties.length > 0 ? (
-            properties.map((property) => {
-              console.log("Property ID:", property._id); // Log the ID to check for duplicates
-              return <PropertyCard key={property._id} property={property} />;
-            })
-          ) : (
-            <p className="col-span-full text-center text-gray-500">
-              No properties found.
-            </p>
-          )}
-        </div>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <h1 className="text-2xl font-semibold mb-6">
+          {pathname === "/mylistings"
+            ? "Manage Your Listings"
+            : "All Properties"}
+        </h1>
 
-        {/* Load More Button */}
+        {properties.length ? (
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {paginatedProperties.map((property) => (
+              <div
+                key={property._id}
+                onClick={() => openModal(property)}
+                className="bg-white border border-gray-200 rounded-2xl shadow-sm transition hover:shadow-lg cursor-pointer"
+              >
+                <div className="h-48 w-full overflow-hidden rounded-t-2xl">
+                  <img
+                    src={
+                      property.image || "https://via.placeholder.com/400x300"
+                    }
+                    alt={property.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold">{property.title}</h3>
+                  <p className="text-gray-500 text-sm mb-2 line-clamp-2">
+                    {property.description}
+                  </p>
+                  <div className="text-sm text-gray-600 flex justify-between items-center">
+                    <span>{property.location}</span>
+                    <span className="font-medium">
+                      ₱{property.pricepernight}/night
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-500 mt-10">
+            No properties found.
+          </p>
+        )}
+
         {hasMore && (
-          <div className="flex justify-center mt-4">
+          <div className="flex justify-center mt-8">
             <button
               onClick={() => setPage((prev) => prev + 1)}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-              disabled={loading}
+              className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
             >
-              {loading ? "Loading..." : "Load More"}
+              Load More
             </button>
           </div>
         )}
       </div>
+
+      {/* Modal */}
+      {showModal && selectedProperty && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-xl max-w-md w-full relative shadow-lg">
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-3 text-gray-500 hover:text-black text-xl"
+            >
+              &times;
+            </button>
+            <img
+              src={
+                selectedProperty.image || "https://via.placeholder.com/400x300"
+              }
+              alt={selectedProperty.title}
+              className="rounded-lg mb-4 h-48 w-full object-cover"
+            />
+            <h2 className="text-xl font-bold mb-2">{selectedProperty.title}</h2>
+            <p className="text-gray-600 mb-4">{selectedProperty.description}</p>
+            <p className="text-lg font-semibold text-blue-600 mb-6">
+              ₱{selectedProperty.pricepernight} per night
+            </p>
+            <div className="mb-4 space-y-2">
+              <label className="block text-sm font-medium">Check-in</label>
+              <input
+                type="date"
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                value={checkIn}
+                onChange={(e) => setCheckIn(e.target.value)}
+              />
+              <label className="block text-sm font-medium">Check-out</label>
+              <input
+                type="date"
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                value={checkOut}
+                onChange={(e) => setCheckOut(e.target.value)}
+              />
+            </div>
+            <button
+              onClick={handleReserve}
+              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+            >
+              Reserve
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

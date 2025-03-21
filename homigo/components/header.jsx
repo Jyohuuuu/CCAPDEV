@@ -3,11 +3,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const pathname = usePathname(); // Get current route
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -39,12 +41,14 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Browse All Properties Button */}
-        <Link href="/propertylistings">
-          <button className="absolute top-4 right-[110px] px-3 py-2 bg-black text-white rounded hover:bg-gray-600 transition">
-            Browse Properties
-          </button>
-        </Link>
+        {/* Browse All Properties Button (conditionally hidden) */}
+        {pathname !== "/listings" && (
+          <Link href="/listings">
+            <button className="absolute top-4 right-[150px] px-8 py-2 bg-black text-white rounded hover:bg-gray-600 transition">
+              Browse
+            </button>
+          </Link>
+        )}
 
         {/* Dropdown Menu */}
         <div className="absolute top-4 right-5 flex items-center">
@@ -62,6 +66,12 @@ export default function Header() {
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Settings
+                </Link>
+                <Link
+                  href="/mylistings"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  My Listings
                 </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
