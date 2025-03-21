@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useSession,} from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Header from "./header";
 import Image from "next/image";
 
 export default function UserProfilePage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [userData, setUserData] = useState({
     name: "",
     city: "",
@@ -107,15 +109,31 @@ export default function UserProfilePage() {
             <div>
               {userData.role === "Host" ? (
                 <>
-                  {/* what the host sees (will look like the old one if done)*/}
-                  <h2 className="text-2xl mb-4 font-semibold">
-                    {userData.preferredNickname 
-                      ? `${userData.preferredNickname}'s Properties` 
-                      : `${userData.name.split(" ")[0]}'s Properties`}
-                  </h2>
-                
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* will work it later */}
+                  <div>
+                    <h2 className="text-2xl mb-4 font-semibold">
+                      {userData.preferredNickname 
+                        ? `${userData.preferredNickname}'s Properties` 
+                        : `${userData.name.split(" ")[0]}'s Properties`}
+                    </h2>
+                    <div className="bg-white border-2 border-gray-300 rounded-lg p-8 text-center">
+                      <div className="mb-4">
+                        {/* home icon from heroicons https://heroicons.com/outline */}
+                        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900">Manage your Properties here!</h3>
+                      <p className="mt-1 text-sm text-gray-500 max-w-md mx-auto">
+                        Easily update and organize your property listings. Add new spaces, edit details, and manage your hosting business efficiently.
+                      </p>
+                      <div className="mt-6">
+                        <button 
+                          onClick={() => router.push('/mylistings')} 
+                          className="px-6 py-2 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition-colors">
+                          Start managing
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </>
               ) : (
@@ -135,7 +153,9 @@ export default function UserProfilePage() {
                         Share your space, earn extra income, and connect with travelers from around the world.
                       </p>
                       <div className="mt-6">
-                        <button className="px-6 py-2 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition-colors">
+                        <button 
+                          onClick={() => router.push('/mylistings')}  
+                          className="px-6 py-2 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition-colors">
                           Start hosting
                         </button>
                       </div>
