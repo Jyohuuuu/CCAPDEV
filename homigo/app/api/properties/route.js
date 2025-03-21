@@ -1,7 +1,9 @@
 import { connectMongoDB } from "@/lib/mongodb";
 import Property from "@/models/property";
+import User from "@/models/user";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
+
 
 export async function GET(req) {
   await connectMongoDB();
@@ -29,6 +31,58 @@ export async function GET(req) {
   }
 }
 
+
+export async function DELETE(req) {
+  try {
+    await connectMongoDB();
+    
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+    
+    const url = new URL(req.url);
+    const id = url.searchParams.get("id");
+    
+    if (!id) {
+      return new Response(JSON.stringify({ error: "Property ID is required" }), { status: 400 });
+    }
+    
+    const property = await Property.findById(id);
+    if (!property) {
+      return new Response(JSON.stringify({ error: "Property not found" }), { status: 404 });
+    }
+    
+    
+    const listerId = property.lister.toString();
+    
+    {/*checks if the user is authorized for deletiony*/ }
+    if (listerId !== session.user.id) {
+      return new Response(JSON.stringify({ error: "Not authorized" }), { status: 403 });
+    }
+    
+    
+    await Property.findByIdAndDelete(id);
+    
+    {/* gets how many properties a user has listed*/}
+    const remainingPropertyCount = await Property.countDocuments({ lister: listerId });
+    
+    {/*if no more properties on the user, update role to "Guest" */}
+    if (remainingPropertyCount === 0) {
+      await User.findByIdAndUpdate(
+        listerId,
+        { role: "Guest" },
+        { new: true }
+      );
+    }
+    
+    return new Response(JSON.stringify({ message: "Property deleted successfully" }), { status: 200 });
+  } catch (error) {
+    console.error("DELETE /api/properties error:", error);
+    return new Response(JSON.stringify({ error: "Server error" }), { status: 500 });
+  }
+}
+
 export async function POST(req) {
   await connectMongoDB();
 
@@ -51,6 +105,17 @@ export async function POST(req) {
       image,
       lister,
     });
+
+    {/* update role to "Host" */}
+    try {
+      await User.findByIdAndUpdate(
+        lister,
+        { role: "Host" }, 
+        { new: true }
+      );
+    } catch (updateError) {
+      console.error("Failed to update user role:", updateError);
+    }
 
     return new Response(JSON.stringify(property), { status: 201 });
   } catch (err) {
