@@ -32,7 +32,14 @@ export async function POST(req) {
         }
 
         // Create new user
-        await User.create({ name, email, password: hashedPassword });
+        await User.create({ 
+            name, 
+            email, 
+            password: hashedPassword,
+            city: "",
+            preferredNickname: "",
+            bio: "",
+        });
 
         return NextResponse.json(
             { message: "User registered successfully." },

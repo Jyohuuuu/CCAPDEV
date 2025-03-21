@@ -1,7 +1,7 @@
 "use client";
-import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
-import { useSession, signOut } from "next-auth/react";
+
+import { useState, useEffect } from "react";
+import { useSession,} from "next-auth/react";
 import Header from "./header";
 import Image from "next/image";
 
@@ -87,9 +87,6 @@ export default function UserProfilePage() {
                 <p className="text-sm font-medium">Host</p>
               </div>
               <hr className="border-t-2 border-gray-200 my-3" />
-              <button className="w-60 bg-black text-white py-2 px-10 rounded-md mt-55 hover:scale-105 transition-transform">
-                Message
-              </button>
             </div>
           </div>
 

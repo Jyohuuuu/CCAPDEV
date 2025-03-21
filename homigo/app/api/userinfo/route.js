@@ -1,5 +1,4 @@
 import { connectMongoDB } from "@/lib/mongodb";
-import UserInfo from "@/models/userinfo";
 import User from "@/models/user";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
@@ -21,16 +20,16 @@ export async function GET() {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
     
-    const userInfo = await UserInfo.findOne({ user: user._id }) || {};
-    
+    // All data now comes directly from the user model
     return NextResponse.json({
       userId: user._id,
       name: user.name,
       email: user.email,
-      city: userInfo.city || "",
-      preferredNickname: userInfo.preferredNickname || "",
-      bio: userInfo.bio || "",
-      createdAt: user.createdAt 
+      city: user.city || "",
+      preferredNickname: user.preferredNickname || "",
+      bio: user.bio || "",
+      createdAt: user.createdAt,
+      role: user.role
     });
     
   } catch (error) {
@@ -55,43 +54,36 @@ export async function POST(req) {
     
     await connectMongoDB();
     
-    // finds user
+    // Find user
     const user = await User.findOne({ email: session.user.email });
     
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
     
-
-    if (name || email) {
-      const updateFields = {};
-      if (name) updateFields.name = name;
-      if (email) updateFields.email = email;
-      
-      await User.findByIdAndUpdate(user._id, updateFields);
-      
-    }
+    // Create an object with all the fields to update
+    const updateFields = {};
+    if (name) updateFields.name = name;
+    if (email) updateFields.email = email;
+    if (city !== undefined) updateFields.city = city;
+    if (preferredNickname !== undefined) updateFields.preferredNickname = preferredNickname;
+    if (bio !== undefined) updateFields.bio = bio;
     
-
-    const updatedUserInfo = await UserInfo.findOneAndUpdate(
-      { user: user._id }, 
-      {
-        user: user._id,  
-        city,
-        preferredNickname,
-        bio
-      },
-      { new: true, upsert: true }
+    // Update all fields directly in the User model
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      updateFields,
+      { new: true } // This returns the updated document
     );
     
     return NextResponse.json({
       message: "Profile updated successfully",
       userInfo: {
-        name: name || user.name,
-        email: email || user.email,
-        city: updatedUserInfo.city,
-        preferredNickname: updatedUserInfo.preferredNickname,
-        bio: updatedUserInfo.bio
+        name: updatedUser.name,
+        email: updatedUser.email,
+        city: updatedUser.city || "",
+        preferredNickname: updatedUser.preferredNickname || "",
+        bio: updatedUser.bio || ""
       }
     });
     

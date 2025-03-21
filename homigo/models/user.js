@@ -18,6 +18,26 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    city: {
+        type: String,
+        required: false,
+    },
+
+    preferredNickname: {
+        type: String,
+        required: false,
+    },
+
+    bio: {
+        type: String,
+        required: false,
+    },
+    role: {
+      type: String,
+      default: "Guest",
+      required:false,
+    },
+
   },
   { timestamps: true }
 );

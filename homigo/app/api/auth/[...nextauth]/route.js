@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import { connectMongoDB } from "@/lib/mongodb";
 import User from "@/models/user";
-import UserInfo from "@/models/userinfo";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 //export makes it so that the function/etc can be imported into other files
@@ -39,30 +38,7 @@ export const authOptions = {
   },
   callbacks: {
     async signIn({ user }) {
-      try {
-        await connectMongoDB();
-        
-        // checks if the user has an existing data on userinfo
-        const userInfo = await UserInfo.findOne({ user: user._id });
-        
-        // if not create one with default values
-        if (!userInfo) {
-          console.log(`Creating UserInfo on login for user: ${user.name} (${user._id})`);
-          
-          await UserInfo.create({
-            user: user._id,
-            city: "",
-            preferredNickname: "",
-            bio: ""
-          });
-          console.log("UserInfo created successfully");
-        }
-        
-        return true; 
-      } catch (error) {
-        console.error("Error in signIn callback:", error);
-        return true; 
-      }
+      return true;
     },
     
     async jwt({ token, user }) {//Adds id and email to the JWT token when user is authenicated
