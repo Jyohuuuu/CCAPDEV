@@ -6,7 +6,8 @@ export async function GET(req, { params }) {
   try {
     await connectMongoDB();
     
-    const propertyId = params.id;
+    const { id } = await params;
+    const propertyId = id;
     
     if (!propertyId) {
       return NextResponse.json({ message: "Property ID is required" }, { status: 400 });
