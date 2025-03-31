@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import Image from "next/image";
-import Header from "@/components/Header";
+import Header from "@/components/header";
 
 export default function ReviewsPage() {
   const [reviews, setReviews] = useState([]);
