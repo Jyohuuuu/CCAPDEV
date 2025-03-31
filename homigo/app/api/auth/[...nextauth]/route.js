@@ -3,65 +3,82 @@ import { connectMongoDB } from "@/lib/mongodb";
 import User from "@/models/user";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-//export makes it so that the function/etc can be imported into other files
+
 export const authOptions = {
   providers: [
-    CredentialsProvider({ //Email/Password Authentication
+    CredentialsProvider({
       name: "credentials",
-      credentials: {},
-      async authorize(credentials) {//This function validates the user's credentials
-        const { email, password } = credentials;
-        
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
         try {
           await connectMongoDB();
-          const user = await User.findOne({ email });
-
-          if (!user) {
-            return null;
+          const user = await User.findOne({ email: credentials.email }).select('+password');
+          
+          if (!user) throw new Error("Invalid credentials");
+          if (!await bcrypt.compare(credentials.password, user.password)) {
+            throw new Error("Invalid credentials");
           }
 
-          const passwordsMatch = await bcrypt.compare(password, user.password); //Compare the hashed password with the password in the database
-
-          if (!passwordsMatch) {
-            return null;
-          }
-
-          return user;
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name
+          };
         } catch (error) {
-          console.log("Error: ", error);
+          throw new Error("/?error=CredentialsSignin");
         }
       },
     }),
   ],
   session: {
-    strategy: "jwt", //JSON Web Token
+    strategy: "jwt",
+    maxAge: 60 * 60, // 1 hour absolute maximum
+    updateAge: 60 * 5, // Refresh if last update >5 mins ago
   },
   callbacks: {
-    async signIn({ user }) {
-      return true;
-    },
-    
-    async jwt({ token, user }) {//Adds id and email to the JWT token when user is authenicated
+    async jwt({ token, user, trigger, session }) {
+      // Initial sign in
       if (user) {
-        token.id = user._id;
-        token.email = user.email;
-        token.name = user.name;
+        token.id = user.id;
+        token.lastUpdate = Math.floor(Date.now() / 1000);
+        return token;
       }
+      
+      //Update via useSession().update()
+      if (trigger === "update") {
+        token.lastUpdate = Math.floor(Date.now() / 1000);
+        return { ...token, ...session };
+      }
+      
+      //Refresh
+      const now = Math.floor(Date.now() / 1000);
+      if (token.lastUpdate && (now - token.lastUpdate > 60 * 5)) {
+        token.lastUpdate = now;
+      }
+      
       return token;
     },
-    
-    async session({ session, token }) {//Essentially does the same to the session object
+    async session({ session, token }) {
       session.user.id = token.id;
-      session.user.email = token.email;
+      session.expires = new Date(
+        (token.lastUpdate || token.iat || Math.floor(Date.now() / 1000)) * 1000 + 60 * 60 * 1000
+      ).toISOString();
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      return url.startsWith(baseUrl) ? url : baseUrl;
+    }
   },
-
-  secret: process.env.NEXTAUTH_SECRET, //Secret Key to encrypt session tokens
   pages: {
-    signIn: "/",//Go to the root route if the user is not authenticated
+    signIn: "/",
+    error: "/", // Redirect all errors to home/login
   },
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: false,
 };
 
-const handler = NextAuth(authOptions); //Initializes NextAuth.js with the provided authOptions
-export { handler as GET, handler as POST }; //Exported as both GET and POST to handle authentication-related HTTP requests.
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
