@@ -8,28 +8,31 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session) {
-      return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { message: "Not authenticated" }, 
+        { status: 401 }
+      );
     }
     
     await connectMongoDB();
     
-    const user = await User.findOne({ email: session.user.email });
+    const user = await User.findOne({ email: session.user.email })
+      .select('-password -__v'); 
     
     if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "User not found" }, 
+        { status: 404 }
+      );
     }
     
-    // All data now comes directly from the user model
     return NextResponse.json({
-      userId: user._id,
       name: user.name,
       email: user.email,
       city: user.city || "",
       preferredNickname: user.preferredNickname || "",
-      bio: user.bio || "",
-      createdAt: user.createdAt,
-      role: user.role
+      bio: user.bio || ""
     });
     
   } catch (error) {
@@ -45,40 +48,41 @@ export async function POST(req) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session) {
-      return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { message: "Not authenticated" }, 
+        { status: 401 }
+      );
     }
     
-    const data = await req.json();
-    const { name, email, city, preferredNickname, bio } = data;
+    const { name, email, city, preferredNickname, bio } = await req.json();
     
     await connectMongoDB();
     
-    // Find user
-    const user = await User.findOne({ email: session.user.email });
+    const updateData = {
+      ...(name && { name }),
+      ...(email && { email }),
+      ...(city !== undefined && { city }),
+      ...(preferredNickname !== undefined && { preferredNickname }),
+      ...(bio !== undefined && { bio })
+    };
     
-    if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-    }
-    
-    // Create an object with all the fields to update
-    const updateFields = {};
-    if (name) updateFields.name = name;
-    if (email) updateFields.email = email;
-    if (city !== undefined) updateFields.city = city;
-    if (preferredNickname !== undefined) updateFields.preferredNickname = preferredNickname;
-    if (bio !== undefined) updateFields.bio = bio;
-    
-    // Update all fields directly in the User model
-    const updatedUser = await User.findByIdAndUpdate(
-      user._id,
-      updateFields,
-      { new: true } // This returns the updated document
+    const updatedUser = await User.findOneAndUpdate(
+      { email: session.user.email },
+      updateData,
+      { new: true, select: '-password -__v' }
     );
+    
+    if (!updatedUser) {
+      return NextResponse.json(
+        { message: "User not found" }, 
+        { status: 404 }
+      );
+    }
     
     return NextResponse.json({
       message: "Profile updated successfully",
-      userInfo: {
+      user: {
         name: updatedUser.name,
         email: updatedUser.email,
         city: updatedUser.city || "",
@@ -90,7 +94,7 @@ export async function POST(req) {
   } catch (error) {
     console.error("Error in userinfo POST:", error);
     return NextResponse.json(
-      { message: "Failed to update profile" }, 
+      { message: error.message || "Failed to update profile" }, 
       { status: 500 }
     );
   }
