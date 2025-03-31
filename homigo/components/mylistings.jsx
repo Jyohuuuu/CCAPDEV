@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "../components/Header";
+import Header from "../components/header";
 
 export default function MyListings() {
   const { data: session, status } = useSession();
