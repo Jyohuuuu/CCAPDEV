@@ -20,7 +20,8 @@ export default function SettingsPage() {
     city: false,
     preferredNickname: false,
     email: false,
-    bio: false
+    bio: false,
+    password: false
   });
 
   const [formInputs, setFormInputs] = useState({
@@ -28,16 +29,22 @@ export default function SettingsPage() {
     city: "",
     preferredNickname: "",
     email: "",
-    bio: ""
+    bio: "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
   });
 
-  {/* loading, saving, error, success states */}
+  // Delete account
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  {/* fetch user data on load */}
   useEffect(() => {
     async function fetchUserData() {
       if (!session) return;
@@ -65,7 +72,10 @@ export default function SettingsPage() {
           city: data.city || "",
           preferredNickname: data.preferredNickname || "",
           email: data.email || "",
-          bio: data.bio || ""
+          bio: data.bio || "",
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: ""
         });
       } catch (err) {
         setError("Failed to load profile data. Please try again later.");
@@ -78,10 +88,31 @@ export default function SettingsPage() {
     fetchUserData();
   }, [session]);
 
+    // Delete function to call the API
+    const deleteUser = async (userId) => {
+      try {
+        const response = await fetch(`/api/users/${userId}`, {
+          method: "DELETE",
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete account');
+        }
+        
+        return true;
+      } catch (err) {
+        setError(err.message);
+        return false;
+      }
+    };
+
   const toggleEdit = (field) => {
     setFormInputs(prev => ({
       ...prev,
-      [field]: userData[field]
+      [field]: userData[field],
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: ""
     }));
     
     setEditing(prev => ({
@@ -99,17 +130,14 @@ export default function SettingsPage() {
     }));
   };
 
-  {/* for saving */}
   const saveField = async (field) => {
     try {
       setSaving(true);
       setError(null);
       
       if (field === 'email') {
-        {/* for email updates */}
         const updateData = { email: formInputs.email };
         
-        {/* proceeds if email is updated */}
         if (formInputs.email !== userData.email) {
           const response = await fetch('/api/userinfo', {
             method: 'POST',
@@ -131,6 +159,54 @@ export default function SettingsPage() {
         } else {
           toggleEdit(field);
         }
+      } else if (field === 'password') {
+        // Validate password fields
+        if (!formInputs.currentPassword) {
+          setError("Current password is required");
+          setSaving(false);
+          return;
+        }
+        
+        if (!formInputs.newPassword) {
+          setError("New password is required");
+          setSaving(false);
+          return;
+        }
+        
+        if (formInputs.newPassword !== formInputs.confirmPassword) {
+          setError("New passwords do not match");
+          setSaving(false);
+          return;
+        }
+        
+        // Send password update request
+        const response = await fetch('/api/update_password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            currentPassword: formInputs.currentPassword,
+            newPassword: formInputs.newPassword
+          })
+        });
+        
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.message || 'Failed to update password');
+        }
+        
+        // Reset password fields
+        setFormInputs(prev => ({
+          ...prev,
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: ""
+        }));
+        
+        toggleEdit(field);
+        setSuccess("Password updated successfully! You may need to log in again.");
+        setTimeout(() => setSuccess(null), 3000);
       } else {
         const updateData = {};
         updateData[field === 'fullName' ? 'name' : field] = formInputs[field];
@@ -147,7 +223,6 @@ export default function SettingsPage() {
           throw new Error(`Failed to update ${field}`);
         }
         
-        {/* update the user data */}
         setUserData(prev => ({
           ...prev,
           [field]: formInputs[field]
@@ -158,7 +233,7 @@ export default function SettingsPage() {
         setTimeout(() => setSuccess(null), 3000);
       }
     } catch (err) {
-      setError(`Failed to update ${field}. Please try again.`);
+      setError(err.message || `Failed to update ${field}. Please try again.`);
       console.error(err);
     } finally {
       setSaving(false);
@@ -169,7 +244,6 @@ export default function SettingsPage() {
     signOut({ callbackUrl: '/' });
   };
 
-  {/* save all changes */}
   const saveAllChanges = async () => {
     try {
       setSaving(true);
@@ -195,7 +269,6 @@ export default function SettingsPage() {
         throw new Error('Failed to update profile');
       }
       
-      {/* check if email is updated */}
       const emailChanged = formInputs.email !== userData.email;
       
       setEditing({
@@ -203,11 +276,11 @@ export default function SettingsPage() {
         city: false,
         preferredNickname: false,
         email: false,
-        bio: false
+        bio: false,
+        password: false
       });
       
       if (emailChanged) {
-        {/* show success message if email is changed and logs out */}
         setSuccess("Profile updated successfully! Logging you out due to email change...");
         setTimeout(() => {
           signOut({ callbackUrl: '/' });
@@ -233,7 +306,65 @@ export default function SettingsPage() {
     }
   };
 
-  {/* if loading, show loading message */}
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== "DELETE") {
+      setError("Please type DELETE in all caps to confirm");
+      return;
+    }
+  
+    try {
+      setDeletingAccount(true);
+      setError(null);
+      setSuccess(null);
+      
+      const response = await fetch('/api/delete_user', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.accessToken}` //Token for Auth
+        },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          userId: session.user.id,
+          confirmation: deleteConfirmation
+        })
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || 
+          `Deletion failed (Status: ${response.status})`
+        );
+      }
+  
+      setSuccess("Account and all related data deleted. Redirecting...");
+      
+      //visual feedback bc im brainrot
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Sign out with redirect
+      await signOut({ 
+        callbackUrl: '/?message=account_deleted',
+        redirect: true 
+      });
+  
+    } catch (err) {
+      setError(err.message || "Deletion failed. Please try again later.");
+      console.error("Delete error:", err);
+      
+      logErrorToService(err, { 
+        userId: session?.user?.id,
+        action: 'account_deletion' 
+      });
+      
+    } finally {
+      if (!success) { // Only reset if not redirect
+        setDeletingAccount(false);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <>
@@ -290,6 +421,7 @@ export default function SettingsPage() {
                 <h3 className="font-semibold mb-2">Account Settings</h3>
                 <ul className="space-y-2 text-sm">
                   <li className="py-1 px-2 bg-gray-100 rounded">Profile Information</li>
+                  <li className="py-1 px-2 hover:bg-gray-100 rounded cursor-pointer">Security</li>
                 </ul>
               </div>
             </div>
@@ -297,7 +429,7 @@ export default function SettingsPage() {
 
           {/* right block */}
           <div className="md:col-span-2">
-            <div className="bg-white p-6 border-2 border-gray-300 rounded-lg shadow-md">
+            <div className="bg-white p-6 border-2 border-gray-300 rounded-lg shadow-md mb-8">
               <h1 className="text-2xl font-bold mb-6 border-b pb-3">Profile Information</h1>
               
               {/* settings to change */}
@@ -529,9 +661,152 @@ export default function SettingsPage() {
                 </div>
               )}
             </div>
+            
+            {/* Security Section */}
+            <div className="bg-white p-6 border-2 border-gray-300 rounded-lg shadow-md mb-8">
+              <h1 className="text-2xl font-bold mb-6 border-b pb-3">Security</h1>
+              
+              {/* Password change */}
+              <div className="space-y-6">
+                <div className="flex flex-col md:flex-row md:items-start justify-between">
+                  <div className="md:w-2/3">
+                    <h3 className="font-semibold">Password</h3>
+                    {editing.password ? (
+                      <div className="space-y-3 mt-2">
+                        <div>
+                          <label className="block text-sm text-gray-600">Current Password</label>
+                          <input 
+                            type="password" 
+                            name="currentPassword"
+                            value={formInputs.currentPassword}
+                            onChange={handleInputChange}
+                            className="w-full border rounded px-2 py-1 mt-1"
+                            placeholder="Enter your current password"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-gray-600">New Password</label>
+                          <input 
+                            type="password" 
+                            name="newPassword"
+                            value={formInputs.newPassword}
+                            onChange={handleInputChange}
+                            className="w-full border rounded px-2 py-1 mt-1"
+                            placeholder="Enter a new password"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-gray-600">Confirm New Password</label>
+                          <input 
+                            type="password" 
+                            name="confirmPassword"
+                            value={formInputs.confirmPassword}
+                            onChange={handleInputChange}
+                            className="w-full border rounded px-2 py-1 mt-1"
+                            placeholder="Confirm your new password"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-gray-700">••••••••••••</p>
+                    )}
+                  </div>
+                  {editing.password ? (
+                    <div className="flex space-x-2 mt-2 md:mt-0">
+                      <button 
+                        onClick={() => saveField('password')}
+                        disabled={saving}
+                        className="px-3 py-1 bg-black text-white rounded hover:bg-gray-800 transition-colors text-sm"
+                      >
+                        {saving ? 'Saving...' : 'Save'}
+                      </button>
+                      <button 
+                        onClick={() => toggleEdit('password')}
+                        className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors text-sm"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={() => toggleEdit('password')}
+                      className="mt-2 md:mt-0 px-3 py-1 bg-white text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors text-sm"
+                    >
+                      Change Password
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Danger Zone */}
+            <div className="bg-white p-6 border-2 border-red-300 rounded-lg shadow-md">
+              <h1 className="text-2xl font-bold mb-6 border-b border-red-200 pb-3 text-red-600">Danger Zone</h1>
+              
+              <div className="space-y-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between">
+                  <div className="md:w-2/3">
+                    <h3 className="font-semibold text-red-600">Delete Account</h3>
+                    <p className="text-gray-700 text-sm">
+                      Once you delete your account, there is no going back. This action cannot be undone.
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => setShowDeleteModal(true)}
+                    className="mt-2 md:mt-0 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
+                  >
+                    Delete Account
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+      
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h2 className="text-xl font-bold mb-4 text-red-600">Delete Your Account</h2>
+            <p className="mb-4">
+              This action is permanent and cannot be undone. All your data will be permanently removed.
+            </p>
+            <p className="mb-4 font-semibold">
+              Please type "DELETE" to confirm:
+            </p>
+            <input 
+              type="text" 
+              value={deleteConfirmation}
+              onChange={(e) => setDeleteConfirmation(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+              placeholder="Type DELETE to confirm"
+            />
+            <div className="flex justify-end space-x-3">
+              <button 
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteConfirmation("");
+                  setError(null);
+                }}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                disabled={deletingAccount}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount || deleteConfirmation !== "DELETE"}
+                className={`px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors ${
+                  deleteConfirmation !== "DELETE" ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                {deletingAccount ? "Deleting..." : "Delete Account"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
