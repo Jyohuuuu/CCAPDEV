@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.6.0",
     "datepicker": "^0.0.0",
