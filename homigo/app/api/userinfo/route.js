@@ -33,7 +33,8 @@ export async function GET() {
       city: user.city || "",
       preferredNickname: user.preferredNickname || "",
       bio: user.bio || "",
-      profilePic: user.profilePic 
+      profilePic: user.profilePic,
+      createdAt: user.createdAt
     });
     
   } catch (error) {

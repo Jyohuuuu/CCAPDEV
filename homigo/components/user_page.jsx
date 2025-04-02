@@ -33,7 +33,7 @@ export default function UserProfilePage() {
       
         console.log("User data from API:", data);
         
-        let formattedDate = "Date unavailable";
+        let formattedDate = "Date Unavailable";
         try {
           if (data.createdAt) {
             const joinDate = new Date(data.createdAt);
