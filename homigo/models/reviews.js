@@ -9,7 +9,7 @@ const reviewSchema = new Schema(
     },
     lister: {
       type: mongoose.Schema.Types.ObjectId, 
-      ref: "Property",
+      ref: "User", // Assuming the lister is a user
       required: true,
     },
     property: {
@@ -17,7 +17,11 @@ const reviewSchema = new Schema(
       ref: "Property",
       required: true,
     },
-    rating: {
+    ratingLister: {
+      type: Number,
+      required: true,
+    },
+    ratingProperty: {
       type: Number,
       required: true,
     },
@@ -30,15 +34,8 @@ const reviewSchema = new Schema(
       type: Date,
       default: Date.now,
     },
-  },
-
+  }
 );
-
-reviewSchema.virtual('userData', {  
-    localField: 'user',  
-    foreignField: '_id',
-    justOne: true
-  });
 
 const reviewInfo = models.reviewInfo || mongoose.model("Review", reviewSchema);
 export default reviewInfo;

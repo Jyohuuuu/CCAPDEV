@@ -1,5 +1,5 @@
 import { connectMongoDB } from "@/lib/mongodb";
-import Review from "@/models/reviewinfo";
+import Review from "@/models/reviews";
 import User from "@/models/user";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
