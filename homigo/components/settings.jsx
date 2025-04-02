@@ -5,7 +5,7 @@ import Header from "./header";
 import Image from "next/image";
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   
   const [userData, setUserData] = useState({
     fullName: "",
@@ -44,6 +44,8 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [uploadingProfilePic, setUploadingProfilePic] = useState(false);
+  const [selectedProfilePic, setSelectedProfilePic] = useState(null);
 
   useEffect(() => {
     async function fetchUserData() {
@@ -365,6 +367,56 @@ export default function SettingsPage() {
     }
   };
 
+
+  const handleProfilePicChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      setUploadingProfilePic(true);
+      setError(null);
+      
+
+      const cloudForm = new FormData();
+      cloudForm.append("file", file);
+      cloudForm.append("upload_preset", "apdev_preset");
+      
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dquub7fch/image/upload",
+        {
+          method: "POST",
+          body: cloudForm,
+        }
+      );
+      
+      const data = await res.json();
+      if (!data.secure_url) throw new Error("Upload failed");
+      
+      
+      const response = await fetch('/api/userinfo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: data.secure_url }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update profile picture');
+      }
+      
+      
+      await update({ user: { ...session.user, image: data.secure_url } });
+      
+      setSuccess("Profile picture updated successfully!");
+      setTimeout(() => setSuccess(null), 3000);
+      
+    } catch (err) {
+      console.error("Error updating profile picture:", err);
+      setError("Failed to update profile picture. Please try again.");
+    } finally {
+      setUploadingProfilePic(false);
+    }
+  };
+
   if (loading) {
     return (
       <>
@@ -402,16 +454,35 @@ export default function SettingsPage() {
                   alt="Profile"
                   width={150}
                   height={150}
-                  className="rounded-full mx-auto"
+                  className="rounded-full mx-auto object-cover border-2 border-gray-300"
+                  style={{ width: '150px', height: '150px' }}
+                />
+
+                <input
+                    type="file"
+                    id="profilePicUpload"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleProfilePicChange}
                 />
 
                 {/* little edit icon from svg, https://icons.getbootstrap.com/icons/pencil-square/*/}
-                <button className="absolute bottom-0 right-0 bg-black text-white rounded-full p-2 shadow-md hover:bg-gray-800">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                    <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-                  </svg>
-                </button>
+                <label 
+                  htmlFor="profilePicUpload" 
+                  className={`absolute bottom-0 right-0 ${uploadingProfilePic ? 'bg-gray-500' : 'bg-black'} text-white rounded-full p-2 shadow-md hover:bg-gray-800 cursor-pointer`}
+                >
+                  {uploadingProfilePic ? (
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                      <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                    </svg>
+                  )}
+                </label>
 
               </div>
               <h2 className="text-xl font-semibold mb-2">{userData.fullName}</h2>

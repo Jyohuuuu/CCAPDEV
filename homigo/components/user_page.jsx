@@ -80,7 +80,8 @@ export default function UserProfilePage() {
                 alt="Profile"
                 width={150}
                 height={150}
-                className="rounded-full mx-auto"
+                className="rounded-full mx-auto object-cover border-2 border-gray-300"
+                style={{ width: '150px', height: '150px' }}
               />
               <div className="mt-3">
                 <p className="text-m font-medium">{userData.role}</p>

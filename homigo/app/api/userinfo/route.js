@@ -32,7 +32,8 @@ export async function GET() {
       email: user.email,
       city: user.city || "",
       preferredNickname: user.preferredNickname || "",
-      bio: user.bio || ""
+      bio: user.bio || "",
+      profilePic: user.profilePic 
     });
     
   } catch (error) {
@@ -55,7 +56,7 @@ export async function POST(req) {
       );
     }
     
-    const { name, email, city, preferredNickname, bio } = await req.json();
+    const { name, email, city, preferredNickname, bio, image } = await req.json();
     
     await connectMongoDB();
     
@@ -64,7 +65,8 @@ export async function POST(req) {
       ...(email && { email }),
       ...(city !== undefined && { city }),
       ...(preferredNickname !== undefined && { preferredNickname }),
-      ...(bio !== undefined && { bio })
+      ...(bio !== undefined && { bio }),
+      ...(image !== undefined && { profilePic: image })
     };
     
     const updatedUser = await User.findOneAndUpdate(
@@ -87,7 +89,8 @@ export async function POST(req) {
         email: updatedUser.email,
         city: updatedUser.city || "",
         preferredNickname: updatedUser.preferredNickname || "",
-        bio: updatedUser.bio || ""
+        bio: updatedUser.bio || "",
+        profilePic: updatedUser.profilePic || ""
       }
     });
     

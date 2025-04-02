@@ -66,6 +66,10 @@ export const authOptions = {
       session.expires = new Date(
         (token.lastUpdate || token.iat || Math.floor(Date.now() / 1000)) * 1000 + 60 * 60 * 1000
       ).toISOString();
+
+      if (session?.user) {
+        session.user.image = token.profilePic || "/Images/defaultUser.png";
+      }
       return session;
     },
     async redirect({ url, baseUrl }) {

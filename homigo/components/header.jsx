@@ -98,7 +98,8 @@ export default function Header() {
                   alt="User"
                   width={25}
                   height={25}
-                  className="rounded-full"
+                  className="rounded-full mx-auto object-cover border-1 border-gray-300"
+                  style={{ width: '25px', height: '25px' }}
                 />
               </div>
             </div>

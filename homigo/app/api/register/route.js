@@ -51,6 +51,7 @@ export async function POST(req) {
             city: "",
             preferredNickname: "",
             bio: "",
+            profilePic: ""
         });
 
         return NextResponse.json(
