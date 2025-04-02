@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import '../app/CSS Files/booking_style.css';
 import DatePicker from 'react-datepicker'; 
 import 'react-datepicker/dist/react-datepicker.css';
@@ -19,6 +20,7 @@ const BookingConfirmation = () => {
     const [endDate, setEndDate] = useState(twoDaysLater);
     const [isEditingDates, setIsEditingDates] = useState(false);
     const [dateError, setDateError] = useState('');
+    const router = useRouter();
 
     // Add missing handler for image loading errors
     const handleImageError = (e) => {
@@ -424,6 +426,7 @@ const handleBookingSubmit = async (e) => {
         setSubmitError(data.message || 'Failed to create booking');
       } else {
         setSubmitSuccess(true);
+        router.push(`/userpage`);
       }
     } catch (error) {
       setSubmitError(error.message || 'An error occurred while processing your booking');
