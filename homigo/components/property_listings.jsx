@@ -18,6 +18,14 @@ export default function PropertyListPage() {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
 
+  const [filter, setFilter] = useState({
+    name: "",
+    location: "",
+    minPrice: "", // Default value as an empty string
+    maxPrice: "",
+  });
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Manage dropdown visibility
+
   const propertiesPerPage = 12;
 
   useEffect(() => {
@@ -26,15 +34,21 @@ export default function PropertyListPage() {
     } else if (status === "authenticated") {
       fetchProperties();
     }
-  }, [status, pathname]);
+  }, [status, pathname, filter]);
 
   const fetchProperties = async () => {
     try {
-      const res = await fetch(
-        `/api/properties?userId=${session.user.id}&excludeMine=${
-          pathname === "/listings"
-        }`
-      );
+      // FETCH REQUEST
+      const queryParams = new URLSearchParams({
+        userId: session.user.id,
+        excludeMine: pathname === "/listings",
+        name: filter.name || "", // Send name filter, if provided
+        location: filter.location || "", // Send location filter, if provided
+        minPrice: filter.minPrice || "", // Send minPrice filter, if provided
+        maxPrice: filter.maxPrice || "", // Send maxPrice filter, if provided
+      }).toString();
+
+      const res = await fetch(`/api/properties?${queryParams}`);
       const data = await res.json();
       setProperties(data.properties);
       setHasMore(data.properties.length > propertiesPerPage);
@@ -43,7 +57,33 @@ export default function PropertyListPage() {
     }
   };
 
-  const paginatedProperties = properties.slice(0, page * propertiesPerPage);
+  // NEW: Added a filter function to check if the property matches filter criteria
+  const filterProperties = (property) => {
+    const { name, location, minPrice, maxPrice } = filter;
+    const lowerCaseName = name.toLowerCase();
+    const lowerCaseLocation = location.toLowerCase();
+
+    // NEW: Case-insensitive matching for name and location
+    const matchesName = property.title.toLowerCase().includes(lowerCaseName);
+    const matchesLocation = property.location
+      .toLowerCase()
+      .includes(lowerCaseLocation);
+
+    // NEW: Check minPrice and maxPrice more safely
+    const matchesMinPrice = minPrice
+      ? property.pricepernight >= parseFloat(minPrice)
+      : true;
+    const matchesMaxPrice = maxPrice
+      ? property.pricepernight <= parseFloat(maxPrice)
+      : true;
+
+    return matchesName && matchesLocation && matchesMinPrice && matchesMaxPrice; // Return true if property matches filter criteria
+  };
+
+  // NEW: Filtered properties before slicing for pagination
+  const paginatedProperties = properties
+    .filter(filterProperties) // Apply the filter before pagination
+    .slice(0, page * propertiesPerPage);
 
   const openModal = (property) => {
     setSelectedProperty(property);
@@ -62,29 +102,31 @@ export default function PropertyListPage() {
       alert("Please select both check-in and check-out dates.");
       return;
     }
-    
+
     const startDate = new Date(checkIn);
     const endDate = new Date(checkOut);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     if (startDate < today) {
       alert("Check-in date cannot be in the past.");
       return;
     }
-    
+
     if (endDate <= startDate) {
       alert("Check-out date must be after check-in date.");
       return;
     }
-    
+
     // Convert dates to ISO strings for URL parameters
     const checkInISO = encodeURIComponent(startDate.toISOString());
     const checkOutISO = encodeURIComponent(endDate.toISOString());
-    
+
     // Navigate to booking page with query parameters
-    router.push(`/booking?propertyId=${selectedProperty._id}&checkIn=${checkInISO}&checkOut=${checkOutISO}`);
-    
+    router.push(
+      `/booking?propertyId=${selectedProperty._id}&checkIn=${checkInISO}&checkOut=${checkOutISO}`
+    );
+
     closeModal();
   };
 
@@ -92,11 +134,71 @@ export default function PropertyListPage() {
     <>
       <Header />
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <h1 className="text-2xl font-semibold mb-6">
-          {pathname === "/mylistings"
-            ? "Manage Your Listings"
-            : "All Properties"}
-        </h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-semibold">
+            {pathname === "/mylistings"
+              ? "Manage Your Listings"
+              : "All Properties"}
+          </h1>
+
+          {/* Filter button */}
+          <button
+            onClick={() => setIsDropdownOpen((prev) => !prev)}
+            className="px-6 py-2 bg-black text-white rounded hover:bg-gray-600 transition"
+          >
+            Filter
+          </button>
+        </div>
+
+        {/* Filter dropdown */}
+        {isDropdownOpen && (
+          <div className="relative z-10">
+            {" "}
+            {/* z-10 ensures dropdown is above other elements */}
+            <div className="absolute right-0 mt-0 bg-white border border-gray-300 rounded-lg shadow-lg w-108 p-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">
+                  Property Name
+                </label>
+                <input
+                  type="text"
+                  className="w-32 border border-gray-300 rounded px-2 py-1"
+                  value={filter.name}
+                  onChange={(e) =>
+                    setFilter({ ...filter, name: e.target.value })
+                  }
+                />
+                <label className="block text-sm font-medium">Location</label>
+                <input
+                  type="text"
+                  className="w-32 border border-gray-300 rounded px-2 py-1"
+                  value={filter.location}
+                  onChange={(e) =>
+                    setFilter({ ...filter, location: e.target.value })
+                  }
+                />
+                <label className="block text-sm font-medium">Min Price</label>
+                <input
+                  type="number"
+                  className="w-32 border border-gray-300 rounded px-2 py-1"
+                  value={filter.minPrice || ""}
+                  onChange={(e) =>
+                    setFilter({ ...filter, minPrice: e.target.value })
+                  }
+                />
+                <label className="block text-sm font-medium">Max Price</label>
+                <input
+                  type="number"
+                  className="w-32 border border-gray-300 rounded px-2 py-1"
+                  value={filter.maxPrice || ""}
+                  onChange={(e) =>
+                    setFilter({ ...filter, maxPrice: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {properties.length ? (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -167,7 +269,9 @@ export default function PropertyListPage() {
             />
             <h2 className="text-xl font-bold mb-2">{selectedProperty.title}</h2>
             <p className="text-gray-600 mb-4">{selectedProperty.description}</p>
-            <p className="text-gray-400 mb-2">by: {selectedProperty.lister?.name}</p>
+            <p className="text-gray-400 mb-2">
+              by: {selectedProperty.lister?.name}
+            </p>
             <p className="text-lg font-semibold text-blue-600 mb-6">
               ₱{selectedProperty.pricepernight} per night
             </p>
@@ -177,7 +281,7 @@ export default function PropertyListPage() {
                 type="date"
                 className="w-full border border-gray-300 rounded px-3 py-2"
                 value={checkIn}
-                min={new Date().toISOString().split('T')[0]}
+                min={new Date().toISOString().split("T")[0]}
                 onChange={(e) => setCheckIn(e.target.value)}
               />
               <label className="block text-sm font-medium">Check-out</label>
@@ -185,7 +289,7 @@ export default function PropertyListPage() {
                 type="date"
                 className="w-full border border-gray-300 rounded px-3 py-2"
                 value={checkOut}
-                min={checkIn || new Date().toISOString().split('T')[0]}
+                min={checkIn || new Date().toISOString().split("T")[0]}
                 onChange={(e) => setCheckOut(e.target.value)}
               />
             </div>
