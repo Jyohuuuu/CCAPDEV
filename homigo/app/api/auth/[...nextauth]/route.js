@@ -25,7 +25,8 @@ export const authOptions = {
           return {
             id: user._id.toString(),
             email: user.email,
-            name: user.name
+            name: user.name,
+            profilePic: user.profilePic
           };
         } catch (error) {
           throw new Error("/?error=CredentialsSignin");
@@ -43,6 +44,7 @@ export const authOptions = {
       // Initial sign in
       if (user) {
         token.id = user.id;
+        token.profilePic = user.profilePic; 
         token.lastUpdate = Math.floor(Date.now() / 1000);
         return token;
       }
@@ -50,6 +52,12 @@ export const authOptions = {
       //Update via useSession().update()
       if (trigger === "update") {
         token.lastUpdate = Math.floor(Date.now() / 1000);
+        
+        
+        if (session?.user?.image) {
+          token.profilePic = session.user.image;
+        }
+        
         return { ...token, ...session };
       }
       
@@ -66,7 +74,7 @@ export const authOptions = {
       session.expires = new Date(
         (token.lastUpdate || token.iat || Math.floor(Date.now() / 1000)) * 1000 + 60 * 60 * 1000
       ).toISOString();
-
+      
       if (session?.user) {
         session.user.image = token.profilePic || "/Images/defaultUser.png";
       }

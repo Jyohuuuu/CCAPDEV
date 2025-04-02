@@ -91,7 +91,8 @@ export async function POST(req) {
         city: updatedUser.city || "",
         preferredNickname: updatedUser.preferredNickname || "",
         bio: updatedUser.bio || "",
-        profilePic: updatedUser.profilePic || ""
+        profilePic: updatedUser.profilePic || "",
+        image: updatedUser.profilePic || ""
       }
     });
     

@@ -392,7 +392,6 @@ export default function SettingsPage() {
       const data = await res.json();
       if (!data.secure_url) throw new Error("Upload failed");
       
-      
       const response = await fetch('/api/userinfo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -403,8 +402,19 @@ export default function SettingsPage() {
         throw new Error('Failed to update profile picture');
       }
       
+      const responseData = await response.json();
       
-      await update({ user: { ...session.user, image: data.secure_url } });
+      
+      await update({
+        ...session,
+        user: {
+          ...session.user,
+          image: cloudData.secure_url
+        }
+      });
+      
+      
+      window.location.reload();
       
       setSuccess("Profile picture updated successfully!");
       setTimeout(() => setSuccess(null), 3000);
