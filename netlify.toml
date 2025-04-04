@@ -1,0 +1,9 @@
+[build]
+  base    = "homigo"       
+  command = "cd homigo && npm install && npm run build"
+  publish = "homigo/.next"
+
+[[rewrites]]
+  from = "/*"
+  to = "/:splat"
+  status = 200
