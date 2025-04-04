@@ -36,42 +36,25 @@ export default function PropertyListPage() {
     }
   }, [status, pathname, filter]);
 
-  const fetchProperties = async () => {
-    const isMyListingsPage = pathname === "/mylistings";
-    const isListingsPage = pathname === "/listings";
-  
-    const params = {
-      ...(session?.user?.id && !isMyListingsPage && { userId: session.user.id }),
-      ...(isMyListingsPage && session?.user?.id && { userId: session.user.id }),
-      name: filter.name || "",
-      location: filter.location || "",
-      minPrice: filter.minPrice || "",
-      maxPrice: filter.maxPrice || "",
-      _cache: Date.now(),
-    };
-  
-    console.log("Sending request with params:", params);
-  
+  const fetchListings = async () => {
     try {
-      const queryString = new URLSearchParams(params).toString();
-      const res = await fetch(`/api/properties?${queryString}`);
+      const queryParams = new URLSearchParams({
+        excludeMine: "true",
+      }).toString();
   
+      const res = await fetch(`/api/properties?${queryParams}`);
+      
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
   
       const data = await res.json();
   
-      console.log("Received properties:", data.properties);
+      setProperties(data.properties);
+      setHasMore(data.properties.length === propertiesPerPage);
   
-
-      setProperties(data.properties || []);
     } catch (err) {
-      console.error("Fetch error:", err);
-      setProperties([]);
-      setError("Failed to load properties");
+      console.error("Error fetching listings:", err);
     }
   };
-  
-  
   
 
   // NEW: Added a filter function to check if the property matches filter criteria

@@ -24,16 +24,26 @@ export default function MyListings() {
     }
   }, [status]);
 
-  const fetchProperties = async () => {
+  const fetchMyListings = async () => {
     try {
-      const res = await fetch(`/api/properties?userId=${session.user.id}`);
+      const queryParams = new URLSearchParams({
+        userId: session.user.id,
+      }).toString();
+  
+      const res = await fetch(`/api/properties?${queryParams}`);
+      
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  
       const data = await res.json();
+  
       setProperties(data.properties);
-      setHasMore(data.properties.length > propertiesPerPage);
+      setHasMore(data.properties.length === propertiesPerPage);
+  
     } catch (err) {
-      console.error("Error fetching properties:", err);
+      console.error("Error fetching my listings:", err);
     }
   };
+  
 
   const paginatedProperties = properties.slice(0, page * propertiesPerPage);
 

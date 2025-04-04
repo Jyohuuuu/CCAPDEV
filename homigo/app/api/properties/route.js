@@ -9,20 +9,24 @@ export async function GET(req) {
 
   const session = await getServerSession(authOptions);
   const url = new URL(req.url);
+  
   const userId = url.searchParams.get("userId");
-  const name = url.searchParams.get("name") || "";
-  const location = url.searchParams.get("location") || "";
-  const minPrice = url.searchParams.get("minPrice");
-  const maxPrice = url.searchParams.get("maxPrice");
-
+  const excludeMine = url.searchParams.get("excludeMine") === "true";
+  
   let query = {};
 
   if (userId) {
     query.lister = userId;
-  } 
-  else if (session?.user?.id) {
-    query.lister = { $ne: session.user.id };
+  } else if (session?.user?.id) {
+    if (excludeMine) {
+      query.lister = { $ne: session.user.id };
+    }
   }
+
+  const name = url.searchParams.get("name") || "";
+  const location = url.searchParams.get("location") || "";
+  const minPrice = url.searchParams.get("minPrice");
+  const maxPrice = url.searchParams.get("maxPrice");
 
   if (name) {
     query.title = { $regex: name, $options: "i" };
@@ -43,16 +47,13 @@ export async function GET(req) {
   try {
     const properties = await Property.find(query)
       .populate("lister", "name")
-      .sort({ createdAt: -1 });
-
+      .sort({ createdAt: -1 }); 
     return new Response(JSON.stringify({ properties }), { status: 200 });
   } catch (error) {
     console.error("Error fetching properties:", error);
     return new Response(JSON.stringify({ error: "Failed to fetch properties" }), { status: 500 });
   }
 }
-
-
 
 
 export async function POST(req) {
