@@ -8,8 +8,5 @@
   to = "/index.html"
   status = 200
 
-# For API routes
-[[redirects]]
-  from = "/api/*"
-  to = "/api/:splat"
-  status = 200
+[[plugins]]
+  package = "@netlify/next"
