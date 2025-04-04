@@ -60,8 +60,8 @@ export default function RegisterPage() {
       <div className="shadow-lg p-5 rounded-lg border-t-4 border-indigo-400 bg-white">
         <div className="relative flex flex-col items-center mb-12">
           <div className="relative mb-2">
-            <Image
-              src="/Images/TempLogo.png"
+            <img
+              src="/TempLogo.png"
               alt="Logo"
               width={120}
               height={120}

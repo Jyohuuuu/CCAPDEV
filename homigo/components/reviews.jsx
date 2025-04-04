@@ -128,8 +128,8 @@ export default function ReviewsPage() {
               >
               
               
-                  <Image
-                    src="/Images/defaultUser.png"
+                  <img
+                    src="/defaultUser.png"
                     alt={review.user?.name || "User"}
                     width={35}
                     height={35}

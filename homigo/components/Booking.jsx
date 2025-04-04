@@ -24,7 +24,7 @@ const BookingConfirmation = () => {
 
     // Add missing handler for image loading errors
     const handleImageError = (e) => {
-      e.target.src = '../images/defaultUser.png';
+      e.target.src = '../defaultUser.png';
       e.target.onerror = null; // Prevents infinite loop
     };
 

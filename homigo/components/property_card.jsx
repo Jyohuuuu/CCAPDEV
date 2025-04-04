@@ -22,7 +22,7 @@ export default function PropertyCard({ property }) {
         src={property.image}
         alt={property.propertytitle || "Property image"}
         className="w-full h-40 object-cover rounded-md mb-2"
-        onError={(e) => (e.target.src = "/Images/default-image.png")} // Replace broken image
+        onError={(e) => (e.target.src = "/default-image.png")} // Replace broken image
       />
 
       {/* Title & Location */}

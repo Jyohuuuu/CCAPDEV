@@ -459,8 +459,8 @@ export default function SettingsPage() {
           <div className="md:col-span-1">
             <div className="w-full min-h-[500px] border-2 border-gray-300 rounded-lg p-5 text-center shadow-md mx-auto">
               <div className="relative mx-auto w-40 h-40 mb-4">
-                <Image
-                  src={session?.user?.image || "/Images/defaultUser.png"}
+                <img
+                  src={session?.user?.image || "/defaultUser.png"}
                   alt="Profile"
                   width={150}
                   height={150}

@@ -27,8 +27,8 @@ export default function Header() {
     <div className="relative bg-white p-9 border-b-2 border-gray-300">
       <header>
         <div className="absolute top-2 left-5 flex items-center">
-          <Image
-            src="/Images/TempLogo.png"
+          <img
+            src="/TempLogo.png"
             alt="Homigo Logo"
             width={50}
             height={50}
@@ -99,8 +99,8 @@ export default function Header() {
 
               {/* Profile Image */}
               <div className="w-9 flex items-center justify-center">
-                <Image
-                  src={session?.user?.image || "/Images/defaultUser.png"}
+                <img
+                  src={session?.user?.image || "/defaultUser.png"}
                   alt="User"
                   width={25}
                   height={25}
