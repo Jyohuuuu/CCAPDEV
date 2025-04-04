@@ -9,9 +9,7 @@ export async function GET(req) {
 
   const session = await getServerSession(authOptions);
   const url = new URL(req.url);
-  
   const userId = url.searchParams.get("userId");
-  const excludeMine = url.searchParams.get("excludeMine") === "true";
   const name = url.searchParams.get("name") || "";
   const location = url.searchParams.get("location") || "";
   const minPrice = url.searchParams.get("minPrice");
@@ -19,12 +17,8 @@ export async function GET(req) {
 
   let query = {};
 
-  if (excludeMine && session?.user?.id) {
+  if (userId || (session?.user?.id && !userId)) {
     query.lister = { $ne: session.user.id };
-  }
-
-  if (userId) {
-    query.lister = userId;
   }
 
   if (name) {
@@ -40,13 +34,8 @@ export async function GET(req) {
   }
 
   if (maxPrice) {
-    query.pricepernight = {
-      ...query.pricepernight,
-      $lte: parseFloat(maxPrice),
-    };
+    query.pricepernight = { ...query.pricepernight, $lte: parseFloat(maxPrice) };
   }
-
-  console.log("Final Query:", query);
 
   try {
     const properties = await Property.find(query)

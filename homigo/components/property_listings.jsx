@@ -37,12 +37,10 @@ export default function PropertyListPage() {
   }, [status, pathname, filter]);
 
   const fetchProperties = async () => {
-    const isListingsPage = pathname === "/listings";
     const isMyListingsPage = pathname === "/mylistings";
   
     const params = {
-      ...(isListingsPage && { excludeMine: "true" }),
-      ...(isMyListingsPage && session?.user?.id && { userId: session.user.id }),
+      ...(session?.user?.id && !isMyListingsPage && { userId: session.user.id }),
       name: filter.name || "",
       location: filter.location || "",
       minPrice: filter.minPrice || "",
@@ -69,6 +67,7 @@ export default function PropertyListPage() {
       setError("Failed to load properties");
     }
   };
+  
   
   
 
