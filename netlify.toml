@@ -1,6 +1,6 @@
 [build]
   base    = "homigo"       
-  command = "cd homigo && npm install && npm run build"
+  command = "npm install && npm run build"
   publish = "homigo/.next"
 
 [[rewrites]]
