@@ -8,57 +8,55 @@ export async function GET(req) {
   await connectMongoDB();
   const url = new URL(req.url);
   
-  console.log('Full request URL:', req.url);
+  console.log('\n=== NEW REQUEST ===');
+  console.log('Full URL:', url.toString());
 
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    console.warn('No session user ID - returning all properties');
-  }
+  const currentUserId = session?.user?.id;
+  console.log('Current session user ID:', currentUserId);
 
-  const params = {
-    userId: url.searchParams.get('userId'),
-    excludeMine: url.searchParams.get('excludeMine') === 'true',
-    name: url.searchParams.get('name') || '',
-    location: url.searchParams.get('location') || '',
-    minPrice: url.searchParams.get('minPrice'),
-    maxPrice: url.searchParams.get('maxPrice'),
-    currentUserId: session?.user?.id
-  };
-
-  console.log('Processed params:', params);
+  const excludeMine = url.searchParams.get('excludeMine') === 'true';
+  const requestedUserId = url.searchParams.get('userId');
+  console.log('Request parameters:', { excludeMine, requestedUserId });
 
   let query = {};
 
-  if (params.userId) {
-    query.lister = params.userId;
-    console.log(`Filtering by USER ID: ${params.userId}`);
-  } else if (params.excludeMine && params.currentUserId) {
-    query.lister = { $ne: params.currentUserId };
-    console.log(`Excluding USER ID: ${params.currentUserId}`);
-  } else {
-    console.log('No user filter applied');
+  if (excludeMine && currentUserId) {
+    query.lister = { 
+      $ne: new mongoose.Types.ObjectId(currentUserId) 
+    };
+    console.log(`Strictly excluding properties where lister != ${currentUserId}`);
+  } 
+  else if (requestedUserId) {
+    query.lister = new mongoose.Types.ObjectId(requestedUserId);
+    console.log(`Showing only properties for user ${requestedUserId}`);
+  }
+  else {
+    console.log('No user filter applied - showing all properties');
   }
 
 
-  console.log('Final query to execute:', JSON.stringify(query));
+  console.log('Final query:', JSON.stringify(query, null, 2));
 
   try {
     const properties = await Property.find(query)
       .populate('lister', '_id name')
       .lean();
 
-    if (params.currentUserId) {
-      const myProperties = properties.filter(p => 
-        p.lister?._id.toString() === params.currentUserId
-      );
-      console.log(`Found ${myProperties.length} properties belonging to current user`);
-    }
+    const myProperties = properties.filter(p => 
+      p.lister?._id.toString() === currentUserId
+    );
+    console.log(`PROPERTIES RETURNED: ${properties.length}`);
+    console.log(`MY PROPERTIES FOUND: ${myProperties.length}`);
 
     return new Response(JSON.stringify({ properties }));
   } catch (error) {
     console.error('Database error:', error);
     return new Response(
-      JSON.stringify({ error: 'Failed to fetch properties' }),
+      JSON.stringify({ 
+        error: 'Failed to fetch properties',
+        debug: { currentUserId, excludeMine } 
+      }),
       { status: 500 }
     );
   }

@@ -37,12 +37,9 @@ export default function PropertyListPage() {
   }, [status, pathname, filter]);
 
   const fetchProperties = async () => {
-    const isListingsPage = pathname === "/listings";
-    const isMyListingsPage = pathname === "/mylistings";
-  
     const params = {
-      ...(isListingsPage && { excludeMine: 'true' }),
-      ...(isMyListingsPage && { userId: session?.user?.id }),
+      ...(pathname === "/listings" && { excludeMine: 'true' }),
+      ...(pathname === "/mylistings" && { userId: session?.user?.id }),
       name: filter.name || '',
       location: filter.location || '',
       minPrice: filter.minPrice || '',
@@ -53,24 +50,20 @@ export default function PropertyListPage() {
     console.log('Sending request with params:', params);
   
     try {
-      const queryString = new URLSearchParams(params).toString();
-      const res = await fetch(`/api/properties?${queryString}`);
-      
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      
+      const res = await fetch(`/api/properties?${new URLSearchParams(params)}`);
       const data = await res.json();
       
-      console.log('Received properties:', data.properties?.length);
-      if (session?.user?.id) {
-        const myProperties = data.properties?.filter(p => 
-          p.lister?._id === session.user.id
-        );
-        console.log('Includes my properties:', myProperties?.length);
-      }
+      const myProperties = data.properties?.filter(p => 
+        p.lister?._id === session?.user?.id
+      );
+      console.log(
+        `Results: ${data.properties?.length} total, ` +
+        `${myProperties?.length} mine`
+      );
   
       setProperties(data.properties || []);
     } catch (err) {
-      console.error('Fetch failed:', err);
+      console.error('Fetch error:', err);
     }
   };
 
