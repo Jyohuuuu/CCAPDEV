@@ -1,6 +1,6 @@
 [build]
   base    = "homigo"       
-  command = "npm install && npm run build"
+  command = "npm install && npm install bcrypt && npm install -D tailwindcss postcss autoprefixer @tailwindcss/postcss && npm run build"
   publish = "homigo/.next"
 
 [[rewrites]]
