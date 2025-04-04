@@ -24,7 +24,7 @@ export default function MyListings() {
     }
   }, [status]);
 
-  const fetchMyListings = async () => {
+  const fetchProperties = async () => {
     try {
       const queryParams = new URLSearchParams({
         userId: session.user.id,

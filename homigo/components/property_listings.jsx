@@ -36,7 +36,7 @@ export default function PropertyListPage() {
     }
   }, [status, pathname, filter]);
 
-  const fetchListings = async () => {
+  const fetchProperties = async () => {
     try {
       const queryParams = new URLSearchParams({
         excludeMine: "true",
