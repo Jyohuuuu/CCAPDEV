@@ -75,7 +75,7 @@ export default function UserProfilePage() {
           {/*profile card grid*/}
           <div className="md:col-span-1 mt-15">
             <div className=" w-75 min-h-[500px] border-2 border-gray-300 rounded-lg p-5 text-center shadow-md relative mx-auto">
-              <Image
+              <img
                 src={session?.user?.image || "/defaultUser.png"}
                 alt="Profile"
                 width={150}
