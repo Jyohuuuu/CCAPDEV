@@ -42,14 +42,12 @@ export default function PropertyListPage() {
   
     const params = {
       ...(isListingsPage && { excludeMine: "true" }),
-      ...(isMyListingsPage && session?.user?.id && { 
-        userId: session.user.id 
-      }),
+      ...(isMyListingsPage && session?.user?.id && { userId: session.user.id }),
       name: filter.name || "",
       location: filter.location || "",
       minPrice: filter.minPrice || "",
       maxPrice: filter.maxPrice || "",
-      _cache: Date.now()
+      _cache: Date.now(),
     };
   
     console.log("Sending request with params:", params);
@@ -57,13 +55,13 @@ export default function PropertyListPage() {
     try {
       const queryString = new URLSearchParams(params).toString();
       const res = await fetch(`/api/properties?${queryString}`);
-      
+  
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      
+  
       const data = await res.json();
-      
+  
       if (session?.user?.id) {
-        const myProperties = data.properties?.filter(p => 
+        const myProperties = data.properties?.filter(p =>
           p.lister?._id === session.user.id
         );
         console.log(
@@ -80,6 +78,7 @@ export default function PropertyListPage() {
       setError("Failed to load properties");
     }
   };
+  
 
   // NEW: Added a filter function to check if the property matches filter criteria
   const filterProperties = (property) => {
