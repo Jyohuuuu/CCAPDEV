@@ -7,36 +7,33 @@ import { authOptions } from "../auth/[...nextauth]/route";
 export async function GET(req) {
   await connectMongoDB();
   const url = new URL(req.url);
-  
-  console.log('\n=== NEW REQUEST ===');
-  console.log('Full URL:', url.toString());
-
   const session = await getServerSession(authOptions);
-  const currentUserId = session?.user?.id;
-  console.log('Current session user ID:', currentUserId);
+  
+  // Debug: Log all incoming parameters
+  console.log('Raw query params:', Object.fromEntries(url.searchParams));
 
-  const excludeMine = url.searchParams.get('excludeMine') === 'true';
+  const currentUserId = session?.user?.id;
   const requestedUserId = url.searchParams.get('userId');
-  console.log('Request parameters:', { excludeMine, requestedUserId });
+  const excludeMine = url.searchParams.get('excludeMine') === 'true';
+
+  // Convert to ObjectId once
+  const currentUserObjectId = currentUserId 
+    ? new mongoose.Types.ObjectId(currentUserId)
+    : null;
 
   let query = {};
 
-  if (excludeMine && currentUserId) {
-    query.lister = { 
-      $ne: new mongoose.Types.ObjectId(currentUserId) 
-    };
-    console.log(`Strictly excluding properties where lister != ${currentUserId}`);
-  } 
-  else if (requestedUserId) {
+  if (requestedUserId) {
     query.lister = new mongoose.Types.ObjectId(requestedUserId);
-    console.log(`Showing only properties for user ${requestedUserId}`);
-  }
-  else {
-    console.log('No user filter applied - showing all properties');
+    console.log(`Filtering by USER ID: ${requestedUserId}`);
+  } else if (excludeMine && currentUserObjectId) {
+    query.lister = { $ne: currentUserObjectId };
+    console.log(`Excluding CURRENT USER ID: ${currentUserId}`);
+  } else {
+    console.log('No user filter applied');
   }
 
-
-  console.log('Final query:', JSON.stringify(query, null, 2));
+  console.log('Final MongoDB query:', JSON.stringify(query));
 
   try {
     const properties = await Property.find(query)
@@ -44,19 +41,18 @@ export async function GET(req) {
       .lean();
 
     const myProperties = properties.filter(p => 
-      p.lister?._id.toString() === currentUserId
+      p.lister?._id?.toString() === currentUserId
     );
-    console.log(`PROPERTIES RETURNED: ${properties.length}`);
-    console.log(`MY PROPERTIES FOUND: ${myProperties.length}`);
+    console.log(
+      `Results: ${properties.length} total, ` +
+      `${myProperties.length} MINE (should be 0 when excludeMine=true)`
+    );
 
     return new Response(JSON.stringify({ properties }));
   } catch (error) {
     console.error('Database error:', error);
     return new Response(
-      JSON.stringify({ 
-        error: 'Failed to fetch properties',
-        debug: { currentUserId, excludeMine } 
-      }),
+      JSON.stringify({ error: 'Failed to fetch properties' }),
       { status: 500 }
     );
   }

@@ -37,44 +37,49 @@ export default function PropertyListPage() {
   }, [status, pathname, filter]);
 
   const fetchProperties = async () => {
+    const isListingsPage = pathname === "/listings";
+    const isMyListingsPage = pathname === "/mylistings";
+  
     const params = {
-      ...(pathname === "/listings" && { excludeMine: 'true' }),
-      ...(pathname === "/mylistings" && { userId: session?.user?.id }),
-      name: filter.name || '',
-      location: filter.location || '',
-      minPrice: filter.minPrice || '',
-      maxPrice: filter.maxPrice || '',
-      _: Date.now()
+      ...(isListingsPage && { excludeMine: "true" }),
+      ...(isMyListingsPage && session?.user?.id && { 
+        userId: session.user.id 
+      }),
+      name: filter.name || "",
+      location: filter.location || "",
+      minPrice: filter.minPrice || "",
+      maxPrice: filter.maxPrice || "",
+      _cache: Date.now()
     };
   
-    console.log('Sending request with params:', params);
+    console.log("Sending request with params:", params);
   
     try {
-      const res = await fetch(`/api/properties?${new URLSearchParams(params)}`);
+      const queryString = new URLSearchParams(params).toString();
+      const res = await fetch(`/api/properties?${queryString}`);
+      
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      
       const data = await res.json();
       
-      const myProperties = data.properties?.filter(p => 
-        p.lister?._id === session?.user?.id
-      );
-      console.log(
-        `Results: ${data.properties?.length} total, ` +
-        `${myProperties?.length} mine`
-      );
+      if (session?.user?.id) {
+        const myProperties = data.properties?.filter(p => 
+          p.lister?._id === session.user.id
+        );
+        console.log(
+          `Received ${data.properties?.length || 0} properties | ` +
+          `Includes ${myProperties?.length || 0} of mine ` +
+          `(should be ${isListingsPage ? "0" : "any"} on this page)`
+        );
+      }
   
       setProperties(data.properties || []);
     } catch (err) {
-      console.error('Fetch error:', err);
+      console.error("Fetch error:", err);
+      setProperties([]);
+      setError("Failed to load properties");
     }
   };
-
-useEffect(() => {
-  console.log("Current route:", pathname);
-  console.log("Session user ID:", session?.user?.id);
-}, [pathname, session]);
-
-useEffect(() => {
-  console.log("Current properties:", properties);
-}, [properties]);
 
   // NEW: Added a filter function to check if the property matches filter criteria
   const filterProperties = (property) => {
