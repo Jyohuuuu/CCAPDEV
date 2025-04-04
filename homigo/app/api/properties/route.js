@@ -6,76 +6,59 @@ import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function GET(req) {
   await connectMongoDB();
-  
   const url = new URL(req.url);
-  const params = Object.fromEntries(url.searchParams);
-  console.log('Incoming request with params:', params);
+  
+  console.log('Full request URL:', req.url);
 
   const session = await getServerSession(authOptions);
-  const currentUserId = session?.user?.id;
-  console.log('Session user ID:', currentUserId);
+  if (!session?.user?.id) {
+    console.warn('No session user ID - returning all properties');
+  }
+
+  const params = {
+    userId: url.searchParams.get('userId'),
+    excludeMine: url.searchParams.get('excludeMine') === 'true',
+    name: url.searchParams.get('name') || '',
+    location: url.searchParams.get('location') || '',
+    minPrice: url.searchParams.get('minPrice'),
+    maxPrice: url.searchParams.get('maxPrice'),
+    currentUserId: session?.user?.id
+  };
+
+  console.log('Processed params:', params);
 
   let query = {};
 
   if (params.userId) {
     query.lister = params.userId;
-    console.log('Filtering by specific user ID:', params.userId);
-  } else if (params.excludeMine === 'true' && currentUserId) {
-    query.lister = { $ne: currentUserId };
-    console.log('Excluding current user properties');
+    console.log(`Filtering by USER ID: ${params.userId}`);
+  } else if (params.excludeMine && params.currentUserId) {
+    query.lister = { $ne: params.currentUserId };
+    console.log(`Excluding USER ID: ${params.currentUserId}`);
   } else {
-    console.log('Showing all properties (no user filter)');
+    console.log('No user filter applied');
   }
 
-  if (params.name) {
-    query.title = { $regex: params.name, $options: 'i' };
-    console.log('Applying name filter:', params.name);
-  }
 
-  if (params.location) {
-    query.location = { $regex: params.location, $options: 'i' };
-    console.log('Applying location filter:', params.location);
-  }
-
-  if (params.minPrice || params.maxPrice) {
-    query.pricepernight = {};
-    
-    if (params.minPrice) {
-      query.pricepernight.$gte = parseFloat(params.minPrice);
-      console.log('Applying min price:', params.minPrice);
-    }
-    
-    if (params.maxPrice) {
-      query.pricepernight.$lte = parseFloat(params.maxPrice);
-      console.log('Applying max price:', params.maxPrice);
-    }
-  }
-
-  console.log('Final MongoDB query:', JSON.stringify(query, null, 2));
+  console.log('Final query to execute:', JSON.stringify(query));
 
   try {
     const properties = await Property.find(query)
-      .populate('lister', 'name email profilePic')
-      .sort({ createdAt: -1 });
+      .populate('lister', '_id name')
+      .lean();
 
-    //Debug
-    console.log('Found properties:', properties.length);
-    if (properties.length > 0) {
-      console.log('Sample property:', {
-        _id: properties[0]._id,
-        title: properties[0].title,
-        lister: properties[0].lister?._id
-      });
+    if (params.currentUserId) {
+      const myProperties = properties.filter(p => 
+        p.lister?._id.toString() === params.currentUserId
+      );
+      console.log(`Found ${myProperties.length} properties belonging to current user`);
     }
 
-    return new Response(JSON.stringify({ properties }), { status: 200 });
+    return new Response(JSON.stringify({ properties }));
   } catch (error) {
     console.error('Database error:', error);
     return new Response(
-      JSON.stringify({ 
-        error: "Failed to fetch properties",
-        details: error.message 
-      }),
+      JSON.stringify({ error: 'Failed to fetch properties' }),
       { status: 500 }
     );
   }

@@ -37,32 +37,43 @@ export default function PropertyListPage() {
   }, [status, pathname, filter]);
 
   const fetchProperties = async () => {
+    const isListingsPage = pathname === "/listings";
+    const isMyListingsPage = pathname === "/mylistings";
+  
+    const params = {
+      ...(isListingsPage && { excludeMine: 'true' }),
+      ...(isMyListingsPage && { userId: session?.user?.id }),
+      name: filter.name || '',
+      location: filter.location || '',
+      minPrice: filter.minPrice || '',
+      maxPrice: filter.maxPrice || '',
+      _: Date.now()
+    };
+  
+    console.log('Sending request with params:', params);
+  
     try {
-      const params = {
-        ...(pathname === "/listings" && { excludeMine: "true" }),
-        ...(pathname === "/mylistings" && { userId: session?.user?.id }),
-        name: filter.name || "",
-        location: filter.location || "",
-        minPrice: filter.minPrice || "",
-        maxPrice: filter.maxPrice || "",
-      };
-  
-      console.log("Fetching with params:", params);
-  
-      const queryParams = new URLSearchParams(params).toString();
-      const res = await fetch(`/api/properties?${queryParams}&_=${Date.now()}`);
+      const queryString = new URLSearchParams(params).toString();
+      const res = await fetch(`/api/properties?${queryString}`);
       
-      if (!res.ok) throw new Error("Failed to fetch");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       
       const data = await res.json();
-      setProperties(data.properties || []);
-      setHasMore(data.properties?.length > propertiesPerPage);
       
+      console.log('Received properties:', data.properties?.length);
+      if (session?.user?.id) {
+        const myProperties = data.properties?.filter(p => 
+          p.lister?._id === session.user.id
+        );
+        console.log('Includes my properties:', myProperties?.length);
+      }
+  
+      setProperties(data.properties || []);
     } catch (err) {
-      console.error("Fetch error:", err);
-      setProperties([]);
+      console.error('Fetch failed:', err);
     }
   };
+
 useEffect(() => {
   console.log("Current route:", pathname);
   console.log("Session user ID:", session?.user?.id);
