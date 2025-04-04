@@ -106,6 +106,10 @@ export default function Header() {
                   height={25}
                   className="rounded-full mx-auto object-cover border-1 border-gray-300"
                   style={{ width: '25px', height: '25px' }}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = "/defaultUser.png";
+                  }}
                 />
               </div>
             </div>

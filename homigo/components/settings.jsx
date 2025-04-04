@@ -466,6 +466,10 @@ export default function SettingsPage() {
                   height={150}
                   className="rounded-full mx-auto object-cover border-2 border-gray-300"
                   style={{ width: '150px', height: '150px' }}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = "/defaultUser.png";
+                  }}
                 />
 
                 <input
