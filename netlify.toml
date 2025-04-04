@@ -1,12 +1,15 @@
 [build]
   base    = "homigo"       
-  command = "npm install && npm install --save-dev @netlify/next && npm install bcrypt && npm install -D tailwindcss postcss autoprefixer @tailwindcss/postcss && npm run build"
+  command = "npm install && npm install bcrypt && npm install -D tailwindcss postcss autoprefixer @tailwindcss/postcss && npm run build"
   publish = ".next"
 
-[[plugins]]
-  package = "@netlify/next"
-  
-[[rewrites]]
+[[redirects]]
   from = "/*"
-  to = "/:splat"
+  to = "/index.html"
+  status = 200
+
+# For API routes
+[[redirects]]
+  from = "/api/*"
+  to = "/api/:splat"
   status = 200
