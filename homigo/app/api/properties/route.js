@@ -23,8 +23,9 @@ export async function GET(req) {
     query.lister = userId;
   }
 
-  if (excludeMine) {
-    query.lister = { $ne: userId };
+
+  if (excludeMine && session?.user?.id) {
+    query.lister = { $ne: session.user.id };
   }
 
   if (name) {
@@ -59,6 +60,7 @@ export async function GET(req) {
     );
   }
 }
+
 
 export async function POST(req) {
   await connectMongoDB();
