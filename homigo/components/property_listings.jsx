@@ -38,24 +38,39 @@ export default function PropertyListPage() {
 
   const fetchProperties = async () => {
     try {
-      // FETCH REQUEST
-      const queryParams = new URLSearchParams({
-        userId: session.user.id,
-        excludeMine: pathname === "/listings",
-        name: filter.name || "", // Send name filter, if provided
-        location: filter.location || "", // Send location filter, if provided
-        minPrice: filter.minPrice || "", // Send minPrice filter, if provided
-        maxPrice: filter.maxPrice || "", // Send maxPrice filter, if provided
-      }).toString();
-
-      const res = await fetch(`/api/properties?${queryParams}`);
+      const params = {
+        ...(pathname === "/listings" && { excludeMine: "true" }),
+        ...(pathname === "/mylistings" && { userId: session?.user?.id }),
+        name: filter.name || "",
+        location: filter.location || "",
+        minPrice: filter.minPrice || "",
+        maxPrice: filter.maxPrice || "",
+      };
+  
+      console.log("Fetching with params:", params);
+  
+      const queryParams = new URLSearchParams(params).toString();
+      const res = await fetch(`/api/properties?${queryParams}&_=${Date.now()}`);
+      
+      if (!res.ok) throw new Error("Failed to fetch");
+      
       const data = await res.json();
-      setProperties(data.properties);
-      setHasMore(data.properties.length > propertiesPerPage);
+      setProperties(data.properties || []);
+      setHasMore(data.properties?.length > propertiesPerPage);
+      
     } catch (err) {
-      console.error("Error fetching properties:", err);
+      console.error("Fetch error:", err);
+      setProperties([]);
     }
   };
+useEffect(() => {
+  console.log("Current route:", pathname);
+  console.log("Session user ID:", session?.user?.id);
+}, [pathname, session]);
+
+useEffect(() => {
+  console.log("Current properties:", properties);
+}, [properties]);
 
   // NEW: Added a filter function to check if the property matches filter criteria
   const filterProperties = (property) => {
