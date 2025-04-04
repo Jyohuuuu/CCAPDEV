@@ -60,16 +60,7 @@ export default function PropertyListPage() {
   
       const data = await res.json();
   
-      if (session?.user?.id) {
-        const myProperties = data.properties?.filter(p =>
-          p.lister?._id === session.user.id
-        );
-        console.log(
-          `Received ${data.properties?.length || 0} properties | ` +
-          `Includes ${myProperties?.length || 0} of mine ` +
-          `(should be ${isListingsPage ? "0" : "any"} on this page)`
-        );
-      }
+      console.log("Received properties:", data.properties);
   
       setProperties(data.properties || []);
     } catch (err) {
@@ -78,6 +69,7 @@ export default function PropertyListPage() {
       setError("Failed to load properties");
     }
   };
+  
   
 
   // NEW: Added a filter function to check if the property matches filter criteria
