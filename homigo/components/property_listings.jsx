@@ -38,9 +38,11 @@ export default function PropertyListPage() {
 
   const fetchProperties = async () => {
     const isMyListingsPage = pathname === "/mylistings";
+    const isListingsPage = pathname === "/listings";
   
     const params = {
       ...(session?.user?.id && !isMyListingsPage && { userId: session.user.id }),
+      ...(isMyListingsPage && session?.user?.id && { userId: session.user.id }),
       name: filter.name || "",
       location: filter.location || "",
       minPrice: filter.minPrice || "",
@@ -60,6 +62,7 @@ export default function PropertyListPage() {
   
       console.log("Received properties:", data.properties);
   
+
       setProperties(data.properties || []);
     } catch (err) {
       console.error("Fetch error:", err);

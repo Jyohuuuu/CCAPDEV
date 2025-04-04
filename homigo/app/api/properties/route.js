@@ -17,7 +17,10 @@ export async function GET(req) {
 
   let query = {};
 
-  if (userId || (session?.user?.id && !userId)) {
+  if (userId) {
+    query.lister = userId;
+  } 
+  else if (session?.user?.id) {
     query.lister = { $ne: session.user.id };
   }
 
@@ -48,6 +51,7 @@ export async function GET(req) {
     return new Response(JSON.stringify({ error: "Failed to fetch properties" }), { status: 500 });
   }
 }
+
 
 
 
