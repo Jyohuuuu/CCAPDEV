@@ -409,7 +409,7 @@ export default function SettingsPage() {
         ...session,
         user: {
           ...session.user,
-          image: cloudData.secure_url
+          image: data.secure_url
         }
       });
       
