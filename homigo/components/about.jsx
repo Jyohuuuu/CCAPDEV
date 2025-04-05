@@ -32,8 +32,6 @@ const AboutPage = () => {
           <ul className="list-disc pl-5">
             <li>next.js</li>
             <li>react</li>
-            <li>mongodb</li>
-            <li>cloudinary</li>
           </ul>
         </section>
       </div>
