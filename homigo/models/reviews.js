@@ -7,11 +7,6 @@ const reviewSchema = new Schema(
       ref: "User",
       required: true,
     },
-    lister: {
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: "User", // Assuming the lister is a user
-      required: true,
-    },
     property: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Property",
@@ -37,5 +32,5 @@ const reviewSchema = new Schema(
   }
 );
 
-const reviewInfo = models.reviewInfo || mongoose.model("Review", reviewSchema);
+const reviewInfo = models.Review || mongoose.model("Review", reviewSchema);
 export default reviewInfo;

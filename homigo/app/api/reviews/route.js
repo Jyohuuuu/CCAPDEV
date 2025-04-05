@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { NextResponse } from "next/server";
 
-// GET: Fetch all reviews for the current authenticated user
+// GET: Fetch all reviews
 export async function GET() {
   try {
     await connectMongoDB();
@@ -21,27 +21,35 @@ export async function GET() {
   }
 }
 
-
 // POST: Create a new review for the authenticated user
 export async function POST(req) {
   try {
+    await connectMongoDB();
+
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
     }
 
     const data = await req.json();
-    const { rating, text } = data;
+    const { property, ratingLister, ratingProperty, text } = data;
 
-    if (!rating || typeof rating !== "number" || rating < 1 || rating > 5) {
-      return NextResponse.json({ message: "Invalid rating value" }, { status: 400 });
+    if (!property || !ratingLister || !ratingProperty) {
+      return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
+    }
+
+    if (typeof ratingLister !== "number" || ratingLister < 1 || ratingLister > 5) {
+      return NextResponse.json({ message: "Invalid Lister rating value" }, { status: 400 });
+    }
+
+    if (typeof ratingProperty !== "number" || ratingProperty < 1 || ratingProperty > 5) {
+      return NextResponse.json({ message: "Invalid Property rating value" }, { status: 400 });
     }
 
     if (text && typeof text !== "string") {
       return NextResponse.json({ message: "Invalid text format" }, { status: 400 });
     }
 
-    await connectMongoDB();
     const user = await User.findOne({ email: session.user.email });
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
@@ -49,12 +57,15 @@ export async function POST(req) {
 
     const newReview = new Review({
       user: user._id,
-      rating,
+      property,
+      ratingLister,
+      ratingProperty,
       text,
     });
 
     await newReview.save();
-    await newReview.populate("user", "name"); // So the response includes the name
+    await newReview.populate("user", "name");
+    await newReview.populate("property", "title");
 
     return NextResponse.json({
       message: "Review submitted successfully",
