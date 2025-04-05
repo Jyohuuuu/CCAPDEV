@@ -88,7 +88,7 @@ export default function UserProfilePage() {
                 }}
               />
               <div className="mt-3">
-                <p className="text-m font-medium">{userData.role}</p>
+                <p className="text-m text-gray-500">{userData.role}</p>
               </div>
               <hr className="border-t-2 border-gray-200 my-3" />
             </div>

@@ -33,6 +33,7 @@ export async function GET() {
       city: user.city || "",
       preferredNickname: user.preferredNickname || "",
       bio: user.bio || "",
+      role: user.role,
       profilePic: user.profilePic,
       createdAt: user.createdAt
     });
