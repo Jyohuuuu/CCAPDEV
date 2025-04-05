@@ -129,6 +129,83 @@ export default function PropertyListPage() {
 
     closeModal();
   };
+  const [reviews, setReviews] = useState([]);
+  const [error, setError] = useState("");
+
+  // Fetch existing reviews
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch("/api/reviews");
+        if (!res.ok) throw new Error(`Failed to fetch reviews: ${res.statusText}`);
+        const data = await res.json();
+        setReviews(data);
+      } catch (err) {
+        console.error("Error fetching reviews:", err);
+        setError("Could not load reviews.");
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
+  // Function to calculate the average rating of a property
+  const getAverageRating = (propertyId) => {
+    const reviewsList = reviews.filter(review => review.property === propertyId);
+
+    if (reviewsList.length === 0) {
+      return "0.0";
+    }
+
+    const totalPropertyRating = reviewsList.reduce((sum, review) => sum + review.ratingProperty, 0);
+    const avgRatingProperty = totalPropertyRating / reviewsList.length;
+
+    return avgRatingProperty.toFixed(1); // Format to one decimal place
+  };
+
+  const getTotalRating = (propertyId) => {
+
+    const reviewsList = reviews.filter(review => review.property === propertyId);
+    return reviewsList.length; // Format to one decimal place
+  };
+
+  const getAverageListerRating = (listerId) => {
+    const propertyList = properties.filter(property => property.lister?._id === listerId);
+
+    if (propertyList.length === 0) {
+      return "0.0";
+    }
+  
+    // Extract property IDs
+    const propertyIds = propertyList.map(property => property._id);
+  
+    // Filter reviews based on property IDs
+    const relevantReviews = reviews.filter(review => propertyIds.includes(review.property.toString()));
+  
+    if (relevantReviews.length === 0) {
+      return "0.0";
+    }
+  
+    // Calculate the average ratingLister
+    const totalRatingLister = relevantReviews.reduce((sum, review) => sum + review.ratingLister, 0);
+    const avgRatingLister = (totalRatingLister / relevantReviews.length).toFixed(1); // Format to one decimal place
+  
+
+    return avgRatingLister;
+  };
+
+  const getTotalListerRating = (listerId) => {
+    const propertyList = properties.filter(property => property.lister?._id === listerId);
+
+    if (propertyList.length === 0) {
+      return "0.0";
+    }
+    const propertyIds = propertyList.map(property => property._id);
+
+    const total = reviews.filter(review => propertyIds.includes(review.property.toString()));
+
+    return total.length;
+  };
 
   return (
     <>
@@ -218,7 +295,11 @@ export default function PropertyListPage() {
                   />
                 </div>
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold">{property.title}</h3>
+                <h3 className="text-lg font-semibold">{property.title}
+              <span className={`text-xl ${getAverageRating(property._id) !== '0.0' ? "text-yellow-400" : "text-gray-400"}`}> ★
+              </span>
+             {getAverageRating(property._id)} ({getTotalRating(property._id)})
+            </h3>
                   <p className="text-gray-500 text-sm mb-2 line-clamp-2">
                     {property.description}
                   </p>
@@ -267,11 +348,21 @@ export default function PropertyListPage() {
               alt={selectedProperty.title}
               className="rounded-lg mb-4 h-48 w-full object-cover"
             />
-            <h2 className="text-xl font-bold mb-2">{selectedProperty.title}</h2>
+            <h2 className="text-lg font-semibold">
+              {selectedProperty.title} 
+              <span className={`text-xl ${getAverageRating(selectedProperty._id) !== '0.0' ? "text-yellow-400" : "text-gray-400"}`}> ★
+              </span>
+              {getAverageRating(selectedProperty._id)} ({getTotalRating(selectedProperty._id)})
+            </h2>
             <p className="text-gray-600 mb-4">{selectedProperty.description}</p>
-            <p className="text-gray-400 mb-2">
-              by: {selectedProperty.lister?.name}
-            </p>
+
+            <h3 className="text-gray-400 mb-2">by: {selectedProperty.lister?.name}
+              <span className={`text-xl ${getAverageListerRating(selectedProperty.lister?._id) !== '0.0' ? "text-yellow-400" : "text-gray-400"}`}> ★
+              </span>
+             {getAverageListerRating(selectedProperty.lister?._id)} ({getTotalListerRating(selectedProperty.lister?._id)})
+            </h3>
+
+
             <p className="text-lg font-semibold text-blue-600 mb-6">
               ₱{selectedProperty.pricepernight} per night
             </p>

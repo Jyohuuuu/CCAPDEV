@@ -126,8 +126,6 @@ export default function ReviewsPage() {
                 key={review._id}
                 className="flex items-start bg-white p-4 border-2 border-gray-300 rounded-lg shadow-md w-full max-w-2xl"
               >
-              
-              
                   <img
                     src="/defaultUser.png"
                     alt={review.user?.name || "User"}
