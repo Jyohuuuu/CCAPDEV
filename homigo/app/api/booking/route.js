@@ -25,7 +25,7 @@ export async function GET() {
     
     // Get all bookings for the current user
     const bookings = await Booking.find({ userId: user._id })
-      .populate('propertyId', 'propertytitle location image price description') // Updated field names
+      .populate('propertyId', 'title location image price description') // Updated field names
       .sort({ createdAt: -1 });
     
     return NextResponse.json({ bookings });
@@ -143,3 +143,68 @@ export async function POST(req) {
     );
   }
 }
+
+export async function DELETE(req) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session) {
+      return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const bookingId = searchParams.get("bookingId");
+
+    if (!bookingId) {
+      return NextResponse.json({ message: "Booking ID is required" }, { status: 400 });
+    }
+
+    await connectMongoDB();
+
+    const user = await User.findOne({ email: session.user.email });
+
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    const booking = await Booking.findById(bookingId);
+
+    if (!booking) {
+      return NextResponse.json({ message: "Booking not found" }, { status: 404 });
+    }
+
+    if (booking.userId.toString() !== user._id.toString()) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+
+    const property = await Property.findById(booking.propertyId);
+    if (property) {
+      const startDate = new Date(booking.startDate);
+      const endDate = new Date(booking.endDate);
+
+      await Property.updateOne(
+        { _id: property._id },
+        {
+          $pull: {
+            unavailableDates: {
+              $gte: startDate,
+              $lte: endDate,
+            },
+          },
+        }
+      );
+    }
+
+    await Booking.findByIdAndDelete(bookingId);
+
+    return NextResponse.json({ message: "Booking deleted successfully" });
+
+  } catch (error) {
+    console.error("Error in booking DELETE:", error);
+    return NextResponse.json(
+      { message: "Failed to delete booking", error: error.message },
+      { status: 500 }
+    );
+  }
+}
+

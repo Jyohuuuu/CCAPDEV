@@ -85,6 +85,14 @@ export default function Header() {
 
         {pathname !== "/listings" && (
           <div className="absolute top-4 right-[150px] flex items-center gap-4">
+
+            <Link href="/mybookings">
+              <button 
+                className="px-8 py-2 bg-black text-white rounded hover:bg-gray-600 transition">
+                My Bookings
+              </button>
+            </Link>
+
             <Link href="/listings">
               <button className="px-8 py-2 bg-black text-white rounded hover:bg-gray-600 transition">
                 Browse
