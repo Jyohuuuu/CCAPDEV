@@ -168,16 +168,14 @@ export default function Header() {
                   Profile
                 </Link>
                 <Link
+                  href="/mylistings"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                ></Link>
+                <Link
                   href="/settings"
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Settings
-                </Link>
-                <Link
-                  href="/mylistings"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  My Listings
                 </Link>
                 <Link
                   href="/about"

@@ -33,6 +33,7 @@ const AboutPage = () => {
             <li>next.js</li>
             <li>react</li>
             <li>mongodb</li>
+            <li>cloudinary</li>
           </ul>
         </section>
       </div>
