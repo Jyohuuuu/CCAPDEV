@@ -2,6 +2,7 @@ import { connectMongoDB } from "@/lib/mongodb";
 import Booking from "@/models/booking";
 import User from "@/models/user";
 import Property from "@/models/property";
+import Notification from '@/models/notification';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { NextResponse } from "next/server";
@@ -118,7 +119,17 @@ export async function POST(req) {
       propertyId,
       { $push: { unavailableDates: { $each: dateArray } } }
     );
-    
+
+    const propertyWithHost = await Property.findById(propertyId).populate('lister');
+    await Notification.create({
+      recipient: propertyWithHost.lister._id,
+      sender: user._id,
+      booking: newBooking._id,
+      property: propertyId,
+      message: `New booking for ${propertyWithHost.title}! (${guestCount} guests, ${startDate} to ${endDate})`,
+      type: 'booking_created',
+    });
+
     return NextResponse.json({
       message: "Booking created successfully",
       booking: newBooking
