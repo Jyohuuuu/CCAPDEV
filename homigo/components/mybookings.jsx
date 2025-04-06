@@ -106,7 +106,7 @@ export default function MyBookingsPage() {
           <div className="text-center py-10 bg-gray-100 rounded-md">
             <h3 className="text-xl font-medium mb-2">No bookings found</h3>
             <Link 
-              href="/listings"
+              href="/mylistings"
               className="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800"
             >
               Find properties to book
