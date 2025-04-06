@@ -20,8 +20,12 @@ export default function Header() {
         try {
           const res = await fetch('/api/notifications');
           const data = await res.json();
-          setNotifications(data);
-          setUnreadCount(data.filter(n => !n.read).length);
+          setNotifications(Array.isArray(data) ? data : []);
+          setUnreadCount(
+            Array.isArray(data) 
+              ? data.filter(n => n && n.read === false).length 
+              : 0
+          );
         } catch (error) {
           console.error("Failed to fetch notifications:", error);
         }

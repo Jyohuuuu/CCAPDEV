@@ -7,7 +7,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -23,10 +23,32 @@ export async function GET() {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
     
-    // Get all bookings for the current user
-    const bookings = await Booking.find({ userId: user._id })
-      .populate('propertyId', 'title location image price description') // Updated field names
-      .sort({ createdAt: -1 });
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get("type");
+    
+    let bookings = [];
+    
+    if (type === "received") {
+      
+      const userProperties = await Property.find({ lister: user._id });
+      
+      if (userProperties.length > 0) {
+        
+        const propertyIds = userProperties.map(property => property._id);
+      
+        bookings = await Booking.find({ 
+          propertyId: { $in: propertyIds } 
+        })
+        .populate('propertyId', 'title location image price description')
+        .populate('userId', 'name email profilePic')
+        .sort({ createdAt: -1 });
+      }
+    } else {
+      
+      bookings = await Booking.find({ userId: user._id })
+        .populate('propertyId', 'title location image price description')
+        .sort({ createdAt: -1 });
+    }
     
     return NextResponse.json({ bookings });
     

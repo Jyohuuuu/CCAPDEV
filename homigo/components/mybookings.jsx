@@ -10,13 +10,16 @@ export default function MyBookingsPage() {
   const { status } = useSession();
   const router = useRouter();
   const [bookings, setBookings] = useState([]);
+  const [receivedBookings, setReceivedBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [receivedLoading, setReceivedLoading] = useState(true);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/");
     } else if (status === "authenticated") {
       fetchBookings();
+      fetchReceivedBookings();
     }
   }, [status, router]);
 
@@ -35,6 +38,24 @@ export default function MyBookingsPage() {
       console.error("Error fetching bookings:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchReceivedBookings = async () => {
+    try {
+      setReceivedLoading(true);
+      const response = await fetch('/api/booking?type=received');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch received bookings');
+      }
+      
+      const data = await response.json();
+      setReceivedBookings(data.bookings || []);
+    } catch (err) {
+      console.error("Error fetching received bookings:", err);
+    } finally {
+      setReceivedLoading(false);
     }
   };
 
@@ -157,18 +178,18 @@ export default function MyBookingsPage() {
       </div>
 
       {/* cards for my properties that have been booked */}
-      <div className="container mx-auto px-4 py-8 mt-20">
+      <div className="container mx-auto px-4 py-8 mt-2">
         <h1 className="text-3xl font-bold mb-8">My Booked Properties</h1>
 
-        {loading ? (
+        {receivedLoading ? (
           <div className="flex justify-center">
             <p className="text-xl">Loading bookings...</p>
           </div>
-        ) : bookings.length === 0 ? (
+        ) : receivedBookings.length === 0 ? (
           <div className="text-center py-10 bg-gray-100 rounded-md">
             <h3 className="text-xl font-medium mb-2">No bookings found</h3>
             <Link 
-              href="/listings"
+              href="/property/create"
               className="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800"
             >
               List your properties
@@ -176,7 +197,7 @@ export default function MyBookingsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {bookings.map((booking) => (
+            {receivedBookings.map((booking) => (
               <div 
                 key={booking._id} 
                 className="border border-gray-200 rounded-lg overflow-hidden shadow-md"
@@ -218,6 +239,19 @@ export default function MyBookingsPage() {
                     <p className="text-sm">
                       <span className="font-medium">Check-out:</span> {formatDate(booking.endDate)}
                     </p>
+                  </div>
+
+                  <div className="flex items-center">
+                    <p className="text-sm font-medium mr-2">Booked By:</p>
+                    <div className="flex items-center">
+                      <img 
+                        src={booking.userId?.profilePic || "/defaultUser.png"} 
+                        alt="Profile" 
+                        className="w-6 h-6 rounded-full mr-2 object-cover border-1 border-gray-300"
+                        onError={(e) => (e.target.src = "/defaultUser.png")}
+                      />
+                      <span className="text-sm">{booking.userId?.name || "Name"}</span>
+                    </div>
                   </div>
                   
                   <div className="mt-3 pt-3 border-t border-gray-200">
