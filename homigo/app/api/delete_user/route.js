@@ -4,6 +4,8 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import User from "@/models/user";
 import Property from "@/models/property";
 import Booking from "@/models/booking";
+import reviewInfo from "@/models/reviews";
+import Notification from "@/models/notification";
 import mongoose from "mongoose";
 
 export async function DELETE(request) {
@@ -19,18 +21,15 @@ export async function DELETE(request) {
   const sessionUserId = session.user.id;
 
   try {
-    // Start a transaction for atomic operations
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
-      // Delete all bookings by this user
       await Booking.deleteMany({ userId: sessionUserId }).session(session);
-      
-      //Delete all properties listed by this user
+      await Notification.deleteMany({ recipient: sessionUserId }).session(session);
+      await reviewInfo.deleteMany({ user: sessionUserId }).session(session);
       await Property.deleteMany({ lister: sessionUserId }).session(session);
-      
-      //Delete the user
+
       const deletedUser = await User.findByIdAndDelete(sessionUserId).session(session);
       
       if (!deletedUser) {
