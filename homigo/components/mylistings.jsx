@@ -61,11 +61,15 @@ export default function MyListings() {
     propertyData.pricepernight = Number(propertyData.pricepernight);
     propertyData.lister = session.user.id;
 
-    // Upload to Cloudinary if image is selected
+    if (propertyData.pricepernight < 0) {
+      alert("Price per night cannot be negative.");
+      return;
+    }
+
     if (selectedImage) {
       const cloudForm = new FormData();
       cloudForm.append("file", selectedImage);
-      cloudForm.append("upload_preset", "apdev_preset"); // <-- Replace
+      cloudForm.append("upload_preset", "apdev_preset");
       try {
         const res = await fetch(
           "https://api.cloudinary.com/v1_1/dquub7fch/image/upload",

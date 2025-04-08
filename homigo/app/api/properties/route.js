@@ -46,7 +46,7 @@ export async function GET(req) {
 
   try {
     const properties = await Property.find(query)
-      .populate("lister", "name")
+      .populate('lister', 'name profilePic')
       .sort({ createdAt: -1 }); 
     return new Response(JSON.stringify({ properties }), { status: 200 });
   } catch (error) {

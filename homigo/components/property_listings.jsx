@@ -283,8 +283,8 @@ export default function PropertyListPage() {
               <div
                 key={property._id}
                 onClick={() => openModal(property)}
-                className="bg-white border border-gray-200 rounded-2xl shadow-sm transition hover:shadow-lg cursor-pointer"
-              >
+                className="bg-white border border-gray-200 rounded-2xl shadow-sm transition hover:shadow-lg cursor-pointer">
+
                 <div className="h-48 w-full overflow-hidden rounded-t-2xl">
                   <img
                     src={
@@ -295,10 +295,9 @@ export default function PropertyListPage() {
                   />
                 </div>
                 <div className="p-4">
-                <h3 className="text-lg font-semibold">{property.title}
-              <span className={`text-xl ${getAverageRating(property._id) !== '0.0' ? "text-yellow-400" : "text-gray-400"}`}> ★
-              </span>
-             {getAverageRating(property._id)} ({getTotalRating(property._id)})
+                <h3 className="text-lg font-semibold">{property.title} 
+              <span className={`text-xl ${getAverageRating(property._id) !== '0.0' ? "text-yellow-400" : "text-gray-400"}`}> ★</span>
+            <span style={{ fontSize: '0.8em' }}>{getAverageRating(property._id)} ({getTotalRating(property._id)})</span>
             </h3>
                   <p className="text-gray-500 text-sm mb-2 line-clamp-2">
                     {property.description}
@@ -350,18 +349,28 @@ export default function PropertyListPage() {
             />
             <h2 className="text-lg font-semibold">
               {selectedProperty.title} 
-              <span className={`text-xl ${getAverageRating(selectedProperty._id) !== '0.0' ? "text-yellow-400" : "text-gray-400"}`}> ★
-              </span>
-              {getAverageRating(selectedProperty._id)} ({getTotalRating(selectedProperty._id)})
+              <span className={`text-xl ${getAverageRating(selectedProperty._id) !== '0.0' ? "text-yellow-400" : "text-gray-400"}`}> ★</span>
+              <span style={{ fontSize: '0.8em' }}>{getAverageRating(selectedProperty._id)} ({getTotalRating(selectedProperty._id)})</span>
             </h2>
             <p className="text-gray-600 mb-4">{selectedProperty.description}</p>
 
-            <h3 className="text-gray-400 mb-2">by: {selectedProperty.lister?.name}
-              <span className={`text-xl ${getAverageListerRating(selectedProperty.lister?._id) !== '0.0' ? "text-yellow-400" : "text-gray-400"}`}> ★
-              </span>
-             {getAverageListerRating(selectedProperty.lister?._id)} ({getTotalListerRating(selectedProperty.lister?._id)})
-            </h3>
-
+            <div className="flex items-center">
+                    <p className="text-sm font-medium mr-2">By:</p>
+                    <div className="flex items-center">
+                      <img 
+                        src={selectedProperty.lister?.profilePic || "/defaultUser.png"} 
+                        alt={selectedProperty.title || "Property"}
+                        className="w-6 h-6 rounded-full mr-2 object-cover border-1 border-gray-300"
+                        onError={(e) => {
+                          console.log("Image failed to load, using fallback.");
+                          e.target.src = "/defaultUser.png";
+                        }}
+                      />
+                      <span className="text-sm">{selectedProperty.lister?.name || "Name"}</span>
+                      <span className={`text-xl ${getAverageListerRating(selectedProperty.lister?._id) !== '0.0' ? "text-yellow-400" : "text-gray-400"}`} > ★</span>
+  <span style={{ fontSize: '0.8em' }}>{getAverageListerRating(selectedProperty.lister?._id)} ({getTotalListerRating(selectedProperty.lister?._id)})</span>
+                    </div>
+          </div>
 
             <p className="text-lg font-semibold text-blue-600 mb-6">
               ₱{selectedProperty.pricepernight} per night

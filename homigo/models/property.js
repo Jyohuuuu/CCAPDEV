@@ -34,12 +34,6 @@ const propertySchema = new mongoose.Schema(
   },
 );
 
-propertySchema.virtual('userData', {  
-    localField: 'user',  
-    foreignField: '_id',
-    justOne: true
-});
-
 const Property =
   mongoose.models.Property ||
   mongoose.model("Property", propertySchema);
