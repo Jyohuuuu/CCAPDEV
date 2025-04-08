@@ -137,12 +137,19 @@ export default function PropertyListPage() {
     const fetchReviews = async () => {
       try {
         const res = await fetch("/api/reviews");
-        if (!res.ok) throw new Error(`Failed to fetch reviews: ${res.statusText}`);
+        
+        if (!res.ok) {
+          console.error(`Failed to fetch reviews: Status ${res.status}`);
+          setError(`Failed to fetch reviews: ${res.statusText}`);
+          return;
+        }
+        
         const data = await res.json();
+        console.log("Reviews fetched successfully:", data);
         setReviews(data);
       } catch (err) {
         console.error("Error fetching reviews:", err);
-        setError("Could not load reviews.");
+        setError("Could not load reviews. Check the console for details.");
       }
     };
 
