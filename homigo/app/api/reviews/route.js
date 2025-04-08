@@ -11,8 +11,10 @@ export async function GET() {
     await connectMongoDB();
 
     const reviews = await Review.find()
-      .populate("user", "name")
+      .populate('user', 'name profilePic')
+      .populate('property', 'image')
       .sort({ createdAt: -1 });
+      
 
     return NextResponse.json(reviews);
   } catch (error) {
