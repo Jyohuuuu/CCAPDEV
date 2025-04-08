@@ -156,25 +156,51 @@ export default function PropertyListPage() {
     fetchReviews();
   }, []);
 
-  // Function to calculate the average rating of a property
-  const getAverageRating = (propertyId) => {
-    const reviewsList = reviews.filter(review => review.property === propertyId);
-
-    if (reviewsList.length === 0) {
-      return "0.0";
+  useEffect(() => {
+    console.log("Current properties:", properties);
+    console.log("Current reviews:", reviews);
+    
+    if (properties.length > 0 && reviews.length > 0) {
+      const sampleProperty = properties[0];
+      console.log("Sample property ID:", sampleProperty._id);
+      
+      const matchingReviews = reviews.filter(review => {
+        const reviewPropertyId = review.property._id ? String(review.property._id) : String(review.property);
+        return reviewPropertyId === String(sampleProperty._id);
+      });
+      
+      console.log("Matching reviews for sample property:", matchingReviews);
     }
+  }, [properties, reviews]);
+  // Function to calculate the average rating of a property
+const getAverageRating = (propertyId) => {
+  const propertyIdStr = String(propertyId);
+  
+  const reviewsList = reviews.filter(review => {
+    const reviewPropertyId = review.property._id ? String(review.property._id) : String(review.property);
+    return reviewPropertyId === propertyIdStr;
+  });
 
-    const totalPropertyRating = reviewsList.reduce((sum, review) => sum + review.ratingProperty, 0);
-    const avgRatingProperty = totalPropertyRating / reviewsList.length;
+  if (reviewsList.length === 0) {
+    return "0.0";
+  }
 
-    return avgRatingProperty.toFixed(1); // Format to one decimal place
-  };
+  const totalPropertyRating = reviewsList.reduce((sum, review) => sum + review.ratingProperty, 0);
+  const avgRatingProperty = totalPropertyRating / reviewsList.length;
 
-  const getTotalRating = (propertyId) => {
+  return avgRatingProperty.toFixed(1);
+};
 
-    const reviewsList = reviews.filter(review => review.property === propertyId);
-    return reviewsList.length; // Format to one decimal place
-  };
+const getTotalRating = (propertyId) => {
+  const propertyIdStr = String(propertyId);
+  
+  const reviewsList = reviews.filter(review => {
+    const reviewPropertyId = review.property._id ? String(review.property._id) : String(review.property);
+    return reviewPropertyId === propertyIdStr;
+  });
+  
+  return reviewsList.length;
+};
 
   const getAverageListerRating = (listerId) => {
     const propertyList = properties.filter(property => property.lister?._id === listerId);
